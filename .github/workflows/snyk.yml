@@ -1,0 +1,41 @@
+name: Snyk Vulnerability Scanner
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  snyk:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository ${{ github.repository }}
+        uses: actions/checkout@v4
+
+      - name: Setup Snyk CLI to check security issues
+        uses: snyk/actions/setup@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Authenticate to Snyk API
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk config set api=$SNYK_TOKEN
+          snyk auth $SNYK_TOKEN
+
+      - name: Snyk code get sarif
+        run: snyk code test --sarif-file-output=snyk-code.sarif
+
+     #- name: Upload sarif result
+        #uses: github/codeql-action/upload-sarif@v3
+        #with:
+          #sarif_file: snyk-code.sarif
