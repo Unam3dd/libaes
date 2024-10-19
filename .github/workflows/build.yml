@@ -10,80 +10,68 @@ on:
 jobs:
   
   build:
-    strategy:
-      matrix:
-        images: ["ubuntu:latest"]
-        buildtype: ["custom", "release", "debug"]
-        compiler: ["gcc"]
-    
     runs-on: ubuntu-latest
 
     container:
-      image: ${{ matrix.images }}
+      image: 'debian:stable'
     
     steps:
       
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install dependencies on Debian ...
-        if: startsWith(matrix.images, 'debian') || startsWith(matrix.images, 'ubuntu')
+      - name: Install dependencies...
         run: |
           apt-get update
           apt-get upgrade -y
           apt-get clean
-          apt-get install git python3 python3-pip python3-venv pkg-config cmake gcc clang build-essential -y
-        
-      - name: Install dependencies on Arch ...
-        if: startsWith(matrix.images, 'arch')
-        run: |
-          pacman -Syu --noconfirm
-          pacman -S git python python-pip python-virtualenv cmake gcc clang base-devel pkgconf --noconfirm
-          pacman -Sc --noconfirm
-        
-      - name: Install dependencies on Fedora...
-        if: startsWith(matrix.images, 'fedora')
-        run: |
-          dnf update -y
-          dnf install git python3 python3-pip python3-virtualenv make automake gcc clang kernel-devel cmake pkgconf -y
-          dnf clean all -y
-
-      - name: Install dependencies on Alpine...
-        if: startsWith(matrix.images, 'alpine')
-        run: |
-          apk update
-          apk add git python3 py3-pip py3-virtualenv cmake gcc clang build-base pkgconfig
-          apk cache clean
+          apt-get install git python3 python3-pip pkg-config gcc build-essential valgrind -y
 
       - name: OS Release
         run: |
           cat /etc/os-release
 
-      - name: Installing Meson
+      - name: Installing Meson and Ninja build system
         run: |
-          python3 -m pip install meson --break-system-packages
+          python3 -m pip install meson ninja --break-system-packages
           meson --version
-
-      - name: Installing Ninja
-        run: |
-          python3 -m pip install ninja --break-system-packages
           ninja --version
 
-      - name: ${{ matrix.buildtype }} build
-        env:
-          CC: ${{ matrix.compiler }}
+      - name: Build Default
         run: |
-          meson setup build --buildtype=${{ matrix.buildtype }}
+          meson setup build
           meson compile -C build
           rm -rf build
 
-      - name: Coverage
+      - name: Build custom
         run: |
-          meson setup build -Db_coverage=true
-          meson test -C build
-          ninja coverage-text -C build
+          meson setup build --buildtype=custom
+          meson compile -C build
+          rm -rf build
+      
+      - name: Build debug
+        run: |
+          meson setup build --buildtype=debug
+          meson compile -C build
+          rm -rf build
 
-      - name: Coverage log
+      - name: Build release
         run: |
-          cat ./build/meson-logs/coverage.txt
+          meson setup build --buildtype=release
+          meson compile -C build
+          rm -rf build
+
+      - name: Build Project
+        run: |
+          meson setup build --buildtype=debug
+          meson compile -C build
+
+      - name: Run tests
+        run: |
+          meson test --print-errorlogs -C build
+
+      - name: Run tests with Valgrind
+        run: |
+          valgrind --version
+          meson test -C build --wrap='valgrind --leak-check=full --track-fds=yes --trace-children=yes'
 

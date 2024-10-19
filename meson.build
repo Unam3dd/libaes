@@ -1,4 +1,4 @@
-project('template', 'c',
+project('aes', 'c',
   version : '0.1',
   default_options : [
     'warning_level=3',
@@ -29,29 +29,10 @@ INC_DIR = ['inc']
 #
 #############################
 
-SRCS_MEM = ['src/ft_memset.c',
-            'src/ft_memchr.c',
-            'src/ft_memcmp.c',
-            'src/ft_memcpy.c',
-            'src/ft_memmove.c']
+SRCS_PKCS = ['src/pkcs/pkcs.c']
 
-SRCS_STR = ['src/ft_strcat.c',
-            'src/ft_strchr.c',
-            'src/ft_strdup.c',
-            'src/ft_strlen.c',
-            'src/ft_strlcat.c',
-            'src/ft_strlcpy.c',
-            'src/ft_strmapi.c',
-            'src/ft_strncat.c',
-            'src/ft_strnstr.c',
-            'src/ft_strncmp.c',
-            'src/ft_strtrim.c',
-            'src/ft_strrchr.c',
-            'src/ft_striteri.c',
-            'src/ft_strcpy.c',
-            'src/ft_substr.c']
-
-SRCS_FILES = files(SRCS_MEM, SRCS_STR)
+SRCS = [SRCS_PKCS]
+SRCS_FILES = files(SRCS)
 
 #############################
 #
@@ -97,7 +78,7 @@ CFLAGS += [STACK_PROTECTOR]
 #
 #############################
 
-TEST_SUBPROJECT = ['tests/basic']
+TEST_SUBPROJECT = ['tests/pkcs/']
 
 #############################
 #
@@ -179,15 +160,6 @@ endif
 
 cc = meson.get_compiler('c')
 ld = find_program('ld', required: true)
-
-#############################
-#
-#     DEPENDENCY
-#
-#############################
-
-#criterion = dependency('criterion', required: true, default_options: ['warning_level=1', 'werror=false'], fallback: ['criterion', 'criterion'])
-#criterion = dependency('criterion', required: false)
 
 #############################
 #
