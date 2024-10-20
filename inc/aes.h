@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/10/19 12:41:52 by stales           ###   ########.fr       */
+/*   Updated: 2024/10/20 08:14:18 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,8 @@ typedef enum e_aes_modes_t
 
 typedef enum e_aes_status_t
 {
-	AES_OK
+	AES_OK,
+	AES_ERR
 } aes_status_t;
 
 typedef enum e_bool_t
@@ -95,11 +96,8 @@ typedef enum e_bool_t
 
 struct s_aes_ctx_t
 {
-	byte_t			*key;
-
+	const aes_key_t	*key;
 	aes_modes_t		mode;
-
-	aes_key_size_t	key_size;
 };
 
 struct s_aes_buf_t
@@ -186,8 +184,7 @@ static inline bool_t	check_cpu_support_aes(void)
 //
 ////////////////////////////////////
 
-aes_status_t	aes_ecb_enc(aes_buf_t *c, const aes_buf_t *p, const aes_key_t *key);
-aes_status_t	aes_ecb_dec(aes_buf_t *p, const aes_buf_t *c, const aes_key_t *key);
-
+aes_status_t	aes_ecb_enc(aes_buf_t *c, const aes_buf_t *p, const aes_ctx_t *ctx);
+aes_status_t	aes_ecb_dec(aes_buf_t *p, const aes_buf_t *c, const aes_ctx_t *ctx);
 
 #endif

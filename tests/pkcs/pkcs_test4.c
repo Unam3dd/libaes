@@ -16,7 +16,7 @@ int main(void)
 	
 	pad = PKCS_PAD_LEN(16, sz);
 	
-	memset(cmp, pad, pad);
+	memset(cmp, pad, pad*sizeof(uint8_t));
 
 	pkcs_status_t status = pkcs_pad(buf, sizeof(buf), sz, 16);
 

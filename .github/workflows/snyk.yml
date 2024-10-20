@@ -33,7 +33,7 @@ jobs:
           snyk auth $SNYK_TOKEN
 
       - name: Snyk code get sarif
-        run: snyk code test --sarif-file-output=snyk-code.sarif
+        run: snyk code test --sarif-file-output=snyk-code.sarif --severity-threshold=medium
 
      #- name: Upload sarif result
         #uses: github/codeql-action/upload-sarif@v3

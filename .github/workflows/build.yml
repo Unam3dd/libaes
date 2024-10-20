@@ -73,5 +73,5 @@ jobs:
       - name: Run tests with Valgrind
         run: |
           valgrind --version
-          meson test -C build --wrap='valgrind --leak-check=full --track-fds=yes --trace-children=yes'
+          meson test -C build --wrap='valgrind --leak-check=full --track-fds=yes --trace-children=yes' --verbose
 
