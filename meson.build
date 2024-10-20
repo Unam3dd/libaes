@@ -107,7 +107,7 @@ S_INVERSE   = '\033[7m'
 #
 #############################
 
-if (host_machine.system() != 'linux')
+if (host_machine.system() != 'linux' or host_machine.cpu() != 'x86_64')
   error('\033[31m' + meson.project_name() + ' project must be compiled on Linux and use only on Linux !\033[00m')
 endif
 
@@ -161,6 +161,37 @@ endif
 
 cc = meson.get_compiler('c')
 ld = find_program('ld', required: true)
+
+#############################
+#
+#       Header
+#
+#############################
+
+HEADERS = ['aes.h', 'pkcs.h']
+
+foreach header: HEADERS
+  if cc.has_header(header, include_directories: include_directories('inc'), required: true) == false
+    error(C_R + header + ' not found !')
+  endif
+endforeach
+
+#############################
+#
+#       Intrinsics
+#
+#############################
+
+# Check if Intrinsics of intel is present !
+
+INTRIN_HEADER = ['immintrin.h', 'wmmintrin.h', 'nmmintrin.h', 'emmintrin.h', 'tmmintrin.h', 'x86gprintrin.h']
+
+foreach header: INTRIN_HEADER
+  if cc.has_header(header) == false
+    error('You don\'t have the \'' + header + '\' header required to compile this AES library !\n' 
+    + 'Maybe your CPU do not support SIMD or AES-NI extension ?')
+  endif
+endforeach
 
 #############################
 #
