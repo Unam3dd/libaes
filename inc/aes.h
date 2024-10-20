@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/10/20 08:14:18 by stales           ###   ########.fr       */
+/*   Updated: 2024/10/20 14:44:05 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,35 @@
 /////////////////////////////////////
 //
 //
+//			DEFINES
+//
+//
+////////////////////////////////////
+
+#ifndef AES_128_NR
+#define AES_128_NR 10
+#else
+#undef AES_128_NR
+#define AES_128_NR 10
+#endif
+
+#ifndef AES_192_NR
+#define AES_192_NR 12
+#else
+#undef AES_192_NR
+#define AES_192_NR 12
+#endif
+
+#ifndef AES_256_NR
+#define AES_256_NR 14
+#else
+#undef AES_256_NR
+#define AES_256_NR 14
+#endif
+
+/////////////////////////////////////
+//
+//
 //			TYPEDEFS
 //
 //
@@ -41,7 +70,23 @@ typedef unsigned short	word_t;
 typedef unsigned int	dword_t;
 typedef unsigned long	qword_t;
 typedef const char*		string_t;
+
+/**
+*
+* @brief  Initialization vector
+*
+*	There is Initialization vector
+*	is just 16 bytes array.
+*/
+
 typedef byte_t			iv_t[16];
+
+
+/**
+*
+* @brief  Round constant
+*/
+typedef byte_t			rc_t;
 
 typedef struct	s_aes_ctx_t	aes_ctx_t;
 typedef struct	s_aes_buf_t	aes_buf_t;
@@ -179,12 +224,37 @@ static inline bool_t	check_cpu_support_aes(void)
 /////////////////////////////////////
 //
 //
+//			ROUND CONSTANT
+//
+//
+////////////////////////////////////
+
+rc_t	round_constant(uint8_t index);
+
+/////////////////////////////////////
+//
+//
 //	  Electronic Code Books (ECB)
 //
 //
 ////////////////////////////////////
 
-aes_status_t	aes_ecb_enc(aes_buf_t *c, const aes_buf_t *p, const aes_ctx_t *ctx);
-aes_status_t	aes_ecb_dec(aes_buf_t *p, const aes_buf_t *c, const aes_ctx_t *ctx);
+//aes_status_t	aes_ecb_enc(aes_buf_t *c, const aes_buf_t *p, const aes_ctx_t *ctx);
+//aes_status_t	aes_ecb_dec(aes_buf_t *p, const aes_buf_t *c, const aes_ctx_t *ctx);
+
+/////////////////////////////////////
+//
+//
+//			MACRO'S
+//
+//
+////////////////////////////////////
+
+#ifndef RC
+#define RC(i) (round_constant(i))
+#else
+#undef RC
+#define RC(i) (round_constant(i))
+#endif
 
 #endif

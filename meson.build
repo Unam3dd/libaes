@@ -29,9 +29,10 @@ INC_DIR = ['inc']
 #
 #############################
 
+SRCS_RC = ['src/rc/rc.c']
 SRCS_PKCS = ['src/pkcs/pkcs.c']
 
-SRCS = [SRCS_PKCS]
+SRCS = [SRCS_PKCS, SRCS_RC]
 SRCS_FILES = files(SRCS)
 
 #############################
@@ -78,7 +79,7 @@ CFLAGS += [STACK_PROTECTOR]
 #
 #############################
 
-TEST_SUBPROJECT = ['tests/pkcs/']
+TEST_SUBPROJECT = ['tests/pkcs', 'tests/rc']
 
 #############################
 #

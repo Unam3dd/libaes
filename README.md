@@ -1,4 +1,4 @@
-# Implementation of AES Library
+# Simple and Ligthweight AES Library
 
 Implemenation of Simple AES library using AES-NI (Advanced Encryption Standard) and SIMD (Single Instruction Multiple Data) written in pure C/Assembly.
 
