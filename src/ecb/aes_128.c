@@ -6,14 +6,12 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/10/20 13:23:51 by stales           ###   ########.fr       */
+/*   Updated: 2024/10/20 15:59:59 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "aes.h"
-
 /*
- * The AES Algorithm
+ * 										AES Algorithm
  *
  * 	Cipher Key:
  * 		AES is a symmetric key encryption algorithm (The same key is used to encrypt and decrypt). 
@@ -37,7 +35,6 @@
  * 		(Note) The size of an "Data blocks" is alway 128 bits even if use 192 or 256 bits AES algorithms
  * 		The principal difference reside in the key, the key size must be changed if you use AES-128,192 or 256 bits
  *		but not Data blocks.
- *
  *
  *
  *
@@ -74,3 +71,6 @@
  *			XOR Operation
  *
  */
+
+
+#include "aes.h"

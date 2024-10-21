@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/10/20 15:28:15 by stales           ###   ########.fr       */
+/*   Updated: 2024/10/20 18:30:05 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,6 +230,18 @@ static inline bool_t	check_cpu_support_aes(void)
 ////////////////////////////////////
 
 rc_t	round_constant(uint8_t index);
+
+/////////////////////////////////////
+//
+//
+//			AES KEY EXPANSION
+//
+//
+////////////////////////////////////
+
+void	aes_128_key_expansion(const byte_t *key, size_t szk, byte_t *rkeys, size_t szrk);
+void	aes_192_key_expansion(const byte_t *key, size_t szk, byte_t *rkeys, size_t szrk);
+void	aes_256_key_expansion(const byte_t *key, size_t szk, byte_t *rkeys, size_t szrk);
 
 /////////////////////////////////////
 //
