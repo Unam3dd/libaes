@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/10/20 18:30:05 by stales           ###   ########.fr       */
+/*   Updated: 2024/10/22 08:11:29 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,18 @@
 
 #include <stdint.h>
 #include <stddef.h>
+
+/////////////////////////////////////
+//
+//
+//			ALIGN
+//
+//
+////////////////////////////////////
+
+#ifndef ALIGN_BLOCK
+#define ALIGN_BLOCK(sz) ((sz + 0x10) & ~0xF)
+#endif
 
 /////////////////////////////////////
 //
@@ -88,9 +100,14 @@ typedef byte_t			iv_t[16];
 */
 typedef byte_t			rc_t;
 
-typedef struct	s_aes_ctx_t	aes_ctx_t;
-typedef struct	s_aes_buf_t	aes_buf_t;
-typedef struct	s_aes_buf_t	aes_key_t;
+/*
+ * @brief 128 bit AES block
+ */
+typedef byte_t			aes_block_t	__attribute__((vector_size(16), aligned(16)));
+
+typedef struct	s_aes_ctx_t		aes_ctx_t;
+typedef struct	s_aes_buf_t		aes_buf_t;
+typedef struct	s_aes_key_t		aes_key_t;
 
 /////////////////////////////////////
 //
@@ -131,6 +148,12 @@ typedef enum e_bool_t
 	TRUE
 } bool_t;
 
+typedef enum e_key_exp_status_t
+{
+	AES_KEY_EXP_OK,
+	AES_KEY_EXP_ERR
+} key_exp_status_t;
+
 /////////////////////////////////////
 //
 //
@@ -139,9 +162,17 @@ typedef enum e_bool_t
 //
 ////////////////////////////////////
 
+struct s_aes_key_t
+{
+	byte_t	key[0x20];
+	size_t	key_size;
+	byte_t	sched[0x100];
+	size_t	sched_size;
+};
+
 struct s_aes_ctx_t
 {
-	const aes_key_t	*key;
+	aes_key_t		key;
 	aes_modes_t		mode;
 };
 
@@ -239,9 +270,9 @@ rc_t	round_constant(uint8_t index);
 //
 ////////////////////////////////////
 
-void	aes_128_key_expansion(const byte_t *key, size_t szk, byte_t *rkeys, size_t szrk);
-void	aes_192_key_expansion(const byte_t *key, size_t szk, byte_t *rkeys, size_t szrk);
-void	aes_256_key_expansion(const byte_t *key, size_t szk, byte_t *rkeys, size_t szrk);
+key_exp_status_t	aes_128_key_expansion(const aes_key_t *k);
+key_exp_status_t	aes_192_key_expansion(const aes_key_t *k);
+key_exp_status_t	aes_256_key_expansion(const aes_key_t *k);
 
 /////////////////////////////////////
 //

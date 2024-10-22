@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 17:46:02 by stales            #+#    #+#             */
-/*   Updated: 2024/10/21 07:49:49 by stales           ###   ########.fr       */
+/*   Updated: 2024/10/22 08:04:10 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,11 @@
 #include <stddef.h>
 
 #ifndef IS_NOT_ALIGNED
-#define IS_NOT_ALIGNED(sz, blk) (size & ~-blk)
+#define IS_NOT_ALIGNED(sz, blk) (sz & ~-blk)
 #endif
 
 #ifndef ALIGN
-#define ALIGN(sz, blk) ((size + blk) & ~(~-blk))
+#define ALIGN(sz, blk) ((sz + blk) & ~(~-blk))
 #endif
 
 #ifndef __SSE2__
@@ -71,5 +71,12 @@ static void	*zero_memory(const void *ptr, size_t size)
 	} buf_##N;
 #endif
 
+#ifndef BUF_NEW
+#define BUF_NEW(N, name)			\
+	buf_##N name = { .size = 0 };	\
+	name.u8 = (byte_t*)name.buf;	\
+	name.capacity = sizeof(name.buf)
+
+#endif
 
 #endif
