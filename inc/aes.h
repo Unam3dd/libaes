@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/10/22 08:11:29 by stales           ###   ########.fr       */
+/*   Updated: 2024/10/25 19:41:27 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,13 @@
 #define AES_256_NR 14
 #endif
 
+#ifndef AES_KEY_ROUND_SIZE
+#define AES_KEY_ROUND_SIZE 0x10
+#else
+#undef AES_KEY_ROUND_SIZE
+#define AES_KEY_ROUND_SIZE 0x10
+#endif
+
 /////////////////////////////////////
 //
 //
@@ -98,12 +105,17 @@ typedef byte_t			iv_t[16];
 *
 * @brief  Round constant
 */
-typedef byte_t			rc_t;
+typedef const byte_t	rc_t;
 
 /*
  * @brief 128 bit AES block
  */
 typedef byte_t			aes_block_t	__attribute__((vector_size(16), aligned(16)));
+
+/*
+ * @brief AES Round Key
+ */
+typedef byte_t			aes_round_key_t	__attribute__((vector_size(16), aligned(16)));
 
 typedef struct	s_aes_ctx_t		aes_ctx_t;
 typedef struct	s_aes_buf_t		aes_buf_t;
@@ -126,20 +138,20 @@ typedef enum e_aes_key_size_t
 
 typedef enum e_aes_modes_t
 {
-	ECB,
-	CBC,
-	CFB,
-	OFB,
-	CTR,
-	CTS,
-	GCM,
-	XTS
+	ECB,		/* Electronic Code Books */
+	CBC,		/* Cipher Block Chaining */
+	CFB,		/* Cipher Feedback 		 */
+	OFB,		/* Output Feedback		 */
+	CTR,		/* Counter Mode			 */
+	CTS,		/* CipherText Stealing	 */
+	GCM,		/* Galois Counter Mode	 */
+	XTS			/* Xex-Tcb-Cts			 */
 } aes_modes_t;
 
 typedef enum e_aes_status_t
 {
-	AES_OK,
-	AES_ERR
+	AES_OK,		/*  Ok  */
+	AES_ERR		/* Error */
 } aes_status_t;
 
 typedef enum e_bool_t
@@ -147,12 +159,6 @@ typedef enum e_bool_t
 	FALSE,
 	TRUE
 } bool_t;
-
-typedef enum e_key_exp_status_t
-{
-	AES_KEY_EXP_OK,
-	AES_KEY_EXP_ERR
-} key_exp_status_t;
 
 /////////////////////////////////////
 //
@@ -164,39 +170,60 @@ typedef enum e_key_exp_status_t
 
 struct s_aes_key_t
 {
-	byte_t	key[0x20];
-	size_t	key_size;
-	byte_t	sched[0x100];
-	size_t	sched_size;
+	union {
+		
+		/* Cipher Key for AES-256 	*/
+		byte_t	key_256[AES_KEY_256];
+		
+		/* Cipher Key for AES-192   */
+		byte_t	key_192[AES_KEY_192];
+		
+		/* Cipher Key for AES-128	*/
+		byte_t	key_128[AES_KEY_128];
+	};
+
+	union {
+		
+		/* AES Key Scheduler buffer for AES-256 + 1 For the round 0  */
+		aes_round_key_t	sched_256[AES_256_NR + 1];
+		byte_t			buf_sched_256[AES_KEY_ROUND_SIZE * (AES_256_NR + 1)];
+		
+		/* AES Key Scheduler Buffer for AES-192 + 1 For the round 0 */
+		aes_round_key_t	sched_192[AES_192_NR + 1]; 
+		byte_t			buf_sched_192[AES_KEY_ROUND_SIZE * (AES_192_NR + 1)];
+		
+		/* AES Key Scheduler Buffer for AES-128 + 1 For the round 0 */
+		aes_round_key_t	sched_128[AES_128_NR + 1];
+		byte_t			buf_sched_128[AES_KEY_ROUND_SIZE * (AES_128_NR + 1)];
+	};
 };
 
 struct s_aes_ctx_t
 {
-	aes_key_t		key;
-	aes_modes_t		mode;
+	aes_key_t		key;	/* Key & Key Scheduler 		*/
+	aes_modes_t		mode;	/* Mode used in the context */
 };
 
 struct s_aes_buf_t
 {
 	union {
-		string_t	*str;
-		byte_t		*buf;
-		uint64_t	*u64;
-		int64_t		*i64;
-		uint32_t	*u32;
-		int32_t		*i32;
-		uint16_t	*u16;
-		int16_t		*i16;
-		uint8_t		*u8;
-		int8_t		*i8;
+		string_t	*str;	/* Value as string 			*/
+		byte_t		*buf;	/* Value as byte 			*/
+		uint64_t	*u64;	/* Value as unsigned long   */
+		int64_t		*i64;	/* Value as signed long		*/
+		uint32_t	*u32;	/* Value as unsigned int	*/
+		int32_t		*i32;	/* Value as signed int		*/
+		uint16_t	*u16;	/* Value as unsigned short	*/
+		int16_t		*i16;	/* Value as signed short	*/
+		uint8_t		*u8;	/* Value as unsigned char	*/
+		int8_t		*i8;	/* Value as signed char		*/
 	};
 
 	union {
-		size_t	len;
-		size_t	size;
+		size_t	len;		/*  Size of the buffer */
+		size_t	size;		/*  Size of the buffer */
+		size_t	capacity;	/*  Size of the buffer */
 	};
-
-	size_t			capacity;
 };
 
 /////////////////////////////////////
@@ -260,7 +287,7 @@ static inline bool_t	check_cpu_support_aes(void)
 //
 ////////////////////////////////////
 
-rc_t	round_constant(uint8_t index);
+rc_t				round_constant(uint8_t index);
 
 /////////////////////////////////////
 //
@@ -270,9 +297,9 @@ rc_t	round_constant(uint8_t index);
 //
 ////////////////////////////////////
 
-key_exp_status_t	aes_128_key_expansion(const aes_key_t *k);
-key_exp_status_t	aes_192_key_expansion(const aes_key_t *k);
-key_exp_status_t	aes_256_key_expansion(const aes_key_t *k);
+aes_status_t		aes_128_key_expansion(const aes_key_t *k);
+aes_status_t		aes_192_key_expansion(const aes_key_t *k);
+aes_status_t		aes_256_key_expansion(const aes_key_t *k);
 
 /////////////////////////////////////
 //

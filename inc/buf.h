@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 17:46:02 by stales            #+#    #+#             */
-/*   Updated: 2024/10/22 08:04:10 by stales           ###   ########.fr       */
+/*   Updated: 2024/10/25 17:40:49 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ static void	*zero_memory(const void *ptr, size_t size)
 
 	return ((void *)ptr);
 }
+
 #endif
 
 #ifndef BUF
@@ -61,10 +62,6 @@ static void	*zero_memory(const void *ptr, size_t size)
 			uint8_t			*u8;	\
 		};							\
 		union {						\
-			size_t	capacity;		\
-			size_t	max;			\
-		};							\
-		union {						\
 			size_t	size;			\
 			size_t	length;			\
 		};							\
@@ -73,9 +70,9 @@ static void	*zero_memory(const void *ptr, size_t size)
 
 #ifndef BUF_NEW
 #define BUF_NEW(N, name)			\
-	buf_##N name = { .size = 0 };	\
+	buf_##N name;					\
 	name.u8 = (byte_t*)name.buf;	\
-	name.capacity = sizeof(name.buf)
+	name.size = sizeof(name.buf)
 
 #endif
 

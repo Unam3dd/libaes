@@ -168,7 +168,7 @@ ld = find_program('ld', required: true)
 #
 #############################
 
-HEADERS = ['aes.h', 'pkcs.h']
+HEADERS = ['aes.h', 'pkcs.h', 'buf.h']
 
 foreach header: HEADERS
   if cc.has_header(header, include_directories: include_directories('inc'), required: true) == false
@@ -182,16 +182,36 @@ endforeach
 #
 #############################
 
-# Check if Intrinsics of intel is present !
+
+# Check if Intrinsics header of intel is present !
 
 INTRIN_HEADER = ['immintrin.h', 'wmmintrin.h', 'nmmintrin.h', 'emmintrin.h', 'tmmintrin.h', 'x86gprintrin.h']
 
-foreach header: INTRIN_HEADER
-  if cc.has_header(header) == false
-    error('You don\'t have the \'' + header + '\' header required to compile this AES library !\n' 
-    + 'Maybe your CPU do not support SIMD or AES-NI extension ?')
-  endif
-endforeach
+if get_option('no-aesni') == false
+  foreach header: INTRIN_HEADER
+    if cc.has_header(header) == false and get_option('no-aesni') == false
+      error('You don\'t have the \'' + header + '\' header required to compile this AES library !\n' 
+        + 'Maybe your CPU do not support SIMD or AES-NI extension ?')
+    endif
+  endforeach
+
+  CFLAGS += ['-msse', '-msse2',  # Streaming SIMD Instruction (128 Bits XMM)
+    '-msse3', '-msse4.1', 
+    '-msse4.2']
+  
+  CFLAGS += ['-mavx', '-mavx2',   # AVX Instruction (256 Bits (XMM/YMM), 512 Bits (ZMM))
+    '-mavx512bw', '-mavx512pf', 
+    '-mavx512vl', '-mavx512f', 
+    '-mavxvnni', '-mavxifma']     # AVX Instruction (256 Bits, 512 Bits)
+  
+  CFLAGS += ['-maes']             # AES-NI Instruction
+  
+  CFLAGS += ['-mrdrnd']           # Read Random Instruction
+  
+  CFLAGS += ['-mvaes']            # Vectorize AES-NI Instruction
+  
+  CFLAGS += ['-mgfni']            # Galois Field Instruction
+endif
 
 #############################
 #
@@ -219,7 +239,7 @@ summary({
 summary({
   'Name': S_BOLD + meson.project_name() + C_RST,
   'Version': S_BOLD + C_G + meson.project_version() + C_RST,
-  'Root': meson.source_root(),
+  'Root': meson.project_source_root(),
   'Optimization Level': S_BOLD + C_G + '-O' + get_option('optimization') + C_RST,
   'Build Type': S_BOLD + C_G + get_option('buildtype') + C_RST,
   'Debug mode': get_option('debug') == true ? S_BOLD + C_G + 'True' + C_RST : S_BOLD + C_R + 'False' + C_RST,

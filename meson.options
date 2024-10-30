@@ -1,2 +1,3 @@
 option('stack-protector', type : 'combo', choices : ['default', 'strong', 'all', 'no'], value : 'default')
 option('no-nx', type: 'boolean', value: false, description: 'Disable NX Bit protection (mean: stack should be executable)')
+option('no-aesni', type: 'boolean', value: false, description: 'Don\'t use AES-NI')
