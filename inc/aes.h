@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/10/30 08:36:24 by stales           ###   ########.fr       */
+/*   Updated: 2024/10/30 08:37:58 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -321,7 +321,7 @@ aes_status_t		aes_256_key_expansion(const aes_key_t *k);
 ////////////////////////////////////
 
 #ifndef RC
-#define RC(i) ((rc_t)round_constant(i))
+#define RC(i) (round_constant(i))
 #else
 #undef RC
 #define RC(i) (round_constant(i))
