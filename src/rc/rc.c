@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 13:38:14 by stales            #+#    #+#             */
-/*   Updated: 2024/10/25 19:21:24 by stales           ###   ########.fr       */
+/*   Updated: 2024/10/30 08:36:37 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@
 */
 rc_t	round_constant(uint8_t i)
 {
-	static const int RC[] = {
+	static const rc_t RC[] = {
 		0x00, 0x01, 0x02, 
 		0x04, 0x08, 0x10,
 		0x20, 0x40, 0x80, 
