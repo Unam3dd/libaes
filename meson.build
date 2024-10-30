@@ -201,9 +201,9 @@ if get_option('no-aesni') == false
   
   CFLAGS += ['-mavx', '-mavx2',   # AVX Instruction (256 Bits (XMM/YMM), 512 Bits (ZMM))
     '-mavx512bw', '-mavx512pf', 
-    '-mavx512vl', '-mavx512f', 
-    '-mavxvnni' ]
-    #'-mavx512ifma']     # AVX Instruction (256 Bits, 512 Bits)
+    '-mavx512vl', '-mavx512f', '-mavxvnni']
+  
+  #-mavx512ifma     # AVX Instruction (256 Bits, 512 Bits)
   
   CFLAGS += ['-maes']             # AES-NI Instruction
   
