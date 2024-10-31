@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/10/30 08:37:58 by stales           ###   ########.fr       */
+/*   Updated: 2024/10/31 10:30:40 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,9 +113,15 @@ typedef byte_t	rc_t;
 typedef byte_t			aes_block_t	__attribute__((vector_size(16), aligned(16)));
 
 /*
- * @brief AES Round Key
+ * @brief AES Round Key 16 bytes interpreted as unsigned char
  */
-typedef byte_t			aes_round_key_t	__attribute__((vector_size(16), aligned(16)));
+typedef byte_t			aes_round_key_u8_t	__attribute__ ((vector_size(16), aligned(1)));
+
+/*
+ * @brief AES Round Key 
+ */
+typedef long long 		aes_round_key_t	__attribute__ ((vector_size(16), aligned(16)));
+
 
 typedef struct	s_aes_ctx_t		aes_ctx_t;
 typedef struct	s_aes_buf_t		aes_buf_t;

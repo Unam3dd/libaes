@@ -31,8 +31,9 @@ INC_DIR = ['inc']
 
 SRCS_RC = ['src/rc/rc.c']
 SRCS_PKCS = ['src/pkcs/pkcs.c']
+SRCS_EXPANSION = ['src/expansion/aes_128_expansion.c', 'src/expansion/aes_192_expansion.c', 'src/expansion/aes_256_expansion.c']
 
-SRCS = [SRCS_PKCS, SRCS_RC]
+SRCS = [SRCS_PKCS, SRCS_RC, SRCS_EXPANSION]
 SRCS_FILES = files(SRCS)
 
 #############################
@@ -196,13 +197,16 @@ if get_option('no-aesni') == false
   endforeach
 
   CFLAGS += ['-msse', '-msse2',  # Streaming SIMD Instruction (128 Bits XMM)
-    '-msse3', '-msse4.1', 
+    '-mssse3', '-msse4.1', 
     '-msse4.2']
   
-  CFLAGS += ['-mavx', '-mavx2',   # AVX Instruction (256 Bits (XMM/YMM), 512 Bits (ZMM))
-    '-mavx512bw', '-mavx512pf', 
-    '-mavx512vl', '-mavx512f', '-mavxvnni']
-  
+  CFLAGS += ['-mavx', '-mavx2', '-mavxvnni']   # AVX Instruction (256 Bits (XMM/YMM), 512 Bits (ZMM))
+
+  # -mavx512bw
+  # -mavx512pf
+  # -mavx512vnl
+  # -mavxvnni
+  # -mavx512f
   #-mavx512ifma     # AVX Instruction (256 Bits, 512 Bits)
   
   CFLAGS += ['-maes']             # AES-NI Instruction

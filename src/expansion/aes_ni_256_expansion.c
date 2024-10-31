@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_ni_192_expansion.c                             :+:      :+:    :+:   */
+/*   aes_ni_256_expansion.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:21:57 by stales            #+#    #+#             */
-/*   Updated: 2024/10/31 10:19:46 by stales           ###   ########.fr       */
+/*   Updated: 2024/10/31 10:21:13 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,11 +59,11 @@
 
 #include <emmintrin.h>	// SSE2
 
-static inline void AES_192_ASSIST(__m128i *tmp1, __m128i *tmp2, __m128i*tmp3)
+static inline void AES_NI_256_ASSIST(__m128i *tmp1, __m128i *tmp2)
 {
 	aes_round_key_t tmp4 = _mm_setzero_si128();
-
-	*tmp2 = _mm_shuffle_epi32(*tmp2, 0x55);
+	
+	*tmp2 = _mm_shuffle_epi32(*tmp2, 0xff);
 	tmp4 = _mm_slli_si128(*tmp1, 0x4);
 	*tmp1 = _mm_xor_si128(*tmp1, tmp4);
 	tmp4 = _mm_slli_si128(tmp4, 0x4);
@@ -71,72 +71,92 @@ static inline void AES_192_ASSIST(__m128i *tmp1, __m128i *tmp2, __m128i*tmp3)
 	tmp4 = _mm_slli_si128(tmp4, 0x4);
 	*tmp1 = _mm_xor_si128(*tmp1, tmp4);
 	*tmp1 = _mm_xor_si128(*tmp1, *tmp2);
-	*tmp2 = _mm_shuffle_epi32(*tmp1, 0xff);
-	tmp4 = _mm_slli_si128(*tmp3, 0x4);
-	*tmp3 = _mm_xor_si128(*tmp3, tmp4);
-	*tmp3 = _mm_xor_si128(*tmp3, *tmp2);
 }
 
-static void	AES_NI_192_KEY_EXPANSION(const byte_t *cipher_key, aes_round_key_t *sched)
+static inline void AES_NI_256_ASSIST_(__m128i *tmp1, __m128i *tmp3)
 {
-	__m128i			tmp1 = _mm_setzero_si128();
-	__m128i			tmp2 = _mm_setzero_si128();
-	__m128i			tmp3 = _mm_setzero_si128();
+	aes_round_key_t tmp2 = _mm_setzero_si128();
+	aes_round_key_t tmp4 = _mm_setzero_si128();
 
-	sched[0] = tmp1 = _mm_load_si128((__m128i*)cipher_key);
-	sched[1] = tmp3 = _mm_load_si128((__m128i*)(cipher_key + 0x10));
+	tmp4 = _mm_aeskeygenassist_si128(*tmp1, 0x0);
+	tmp2 = _mm_shuffle_epi32(tmp4, 0xaa);
+	tmp4 = _mm_slli_si128(*tmp3, 0x04);
+	*tmp3 = _mm_xor_si128(*tmp3, tmp4);
+	tmp4 = _mm_slli_si128(tmp4, 0x04);
+	*tmp3 = _mm_xor_si128(*tmp3, tmp4);
+	tmp4 = _mm_slli_si128(tmp4, 0x04);
+	*tmp3 = _mm_xor_si128(*tmp3, tmp4);
+	*tmp3 = _mm_xor_si128(*tmp3, tmp2);
+}
 
-	// RC[1] = 0x1
-	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x1);
-	AES_192_ASSIST(&tmp1, &tmp2, &tmp3);
-	sched[1] = (__m128i)_mm_shuffle_pd(sched[1], tmp1, 0);
-	sched[2] = (__m128i)_mm_shuffle_pd(tmp1, tmp3, 0x1);
+static void	AES_NI_256_KEY_EXPANSION(const byte_t *cipher_key, aes_round_key_t *sched)
+{
+	__m128i tmp1 = _mm_setzero_si128();
+	__m128i tmp2 = _mm_setzero_si128();
+	__m128i tmp3 = _mm_setzero_si128();
 
+	tmp1 = _mm_loadu_si128((__m128i *)cipher_key);
+	tmp3 = _mm_loadu_si128((__m128i *)(cipher_key + 0x10));
+
+	sched[0] = tmp1;
+	sched[1] = tmp3;
+
+	// RC[1] = 0x4
+
+	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x01);
+	AES_NI_256_ASSIST(&tmp1, &tmp2);
+	sched[2] = tmp1;
+	AES_NI_256_ASSIST_(&tmp1, &tmp3);
+	sched[3] = tmp3;
 
 	// RC[2] = 0x2
-	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x2);
-	AES_192_ASSIST(&tmp1, &tmp2, &tmp3);
-	sched[3] = tmp1;
-	sched[4] = tmp3;
+
+	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x02);
+	AES_NI_256_ASSIST(&tmp1, &tmp2);
+	sched[4] = tmp1;
+	AES_NI_256_ASSIST_(&tmp1, &tmp3);
+	sched[5] = tmp3;
 
 	// RC[3] = 0x4
-	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x4);
-	AES_192_ASSIST(&tmp1, &tmp2, &tmp3);
-	sched[4] = (__m128i)_mm_shuffle_pd(sched[4], tmp1, 0x0);
-	sched[5] = (__m128i)_mm_shuffle_pd(tmp1, tmp3, 0x1);
 
+	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x4);
+	AES_NI_256_ASSIST(&tmp1, &tmp2);
+	sched[6] = tmp1;
+	AES_NI_256_ASSIST_(&tmp1, &tmp3);
+	sched[7] = tmp3;
 
 	// RC[4] = 0x8
+	
 	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x8);
-	AES_192_ASSIST(&tmp1, &tmp2, &tmp3);
-	sched[6] = tmp1;
-	sched[7] = tmp3;
+	AES_NI_256_ASSIST(&tmp1, &tmp2);
+	sched[8] = tmp1;
+	AES_NI_256_ASSIST_(&tmp1, &tmp3);
+	sched[9] = tmp3;
 
 
 	// RC[5] = 0x10
+	
 	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x10);
-	AES_192_ASSIST(&tmp1, &tmp2, &tmp3);
-	sched[7] = (__m128i)_mm_shuffle_pd(sched[7], tmp1, 0x0);
-	sched[8] = (__m128i)_mm_shuffle_pd(tmp1, tmp3, 0x1);
+	AES_NI_256_ASSIST(&tmp1, &tmp2);
+	sched[10] = tmp1;
+	AES_NI_256_ASSIST_(&tmp1, &tmp3);
+	sched[11] = tmp3;
 
 
 	// RC[6] = 0x20
+	
 	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x20);
-	AES_192_ASSIST(&tmp1, &tmp2, &tmp3);
-	sched[9] = tmp1;
-	sched[10] = tmp3;
-
-	// RC[7] = 0x40
-	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x40);
-	AES_192_ASSIST(&tmp1, &tmp2, &tmp3);
-	sched[10] = (__m128i)_mm_shuffle_pd(sched[10], tmp1, 0x0);
-	sched[11] = (__m128i)_mm_shuffle_pd(tmp1, tmp3, 0x1);
-
-	// RC[8] = 0x80
-
-	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x80);
-	AES_192_ASSIST(&tmp1, &tmp2, &tmp3);
+	AES_NI_256_ASSIST(&tmp1, &tmp2);
 	sched[12] = tmp1;
+	AES_NI_256_ASSIST_(&tmp1, &tmp3);
+	sched[13] = tmp3;
+
+
+	// RC[6] = 0x40
+	
+	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x40);
+	AES_NI_256_ASSIST(&tmp1, &tmp2);
+	sched[14] = tmp1;
 }
 
 #endif
