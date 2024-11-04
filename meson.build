@@ -72,7 +72,7 @@ if (get_option('no-nx'))
   LDFLAGS += ['-z', 'execstack']
 endif
 
-CFLAGS += [STACK_PROTECTOR]
+CFLAGS += [STACK_PROTECTOR, '-fno-builtin']
 
 #############################
 #
