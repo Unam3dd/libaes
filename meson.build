@@ -45,6 +45,7 @@ SRCS_FILES = files(SRCS)
 #############################
 
 CFLAGS = ['-D_FORTIFY_SOURCE=2', '-masm=intel']
+#CFLAGS = ['-masm=intel']
 LDFLAGS = []
 TEST_CFLAGS = ['-g', '-fPIC']
 #LDFLAGS = ['-nostdlib', '-nodefaultlibs']
@@ -73,8 +74,6 @@ endif
 if (get_option('no-nx'))
   LDFLAGS += ['-z', 'execstack']
 endif
-
-CFLAGS += [STACK_PROTECTOR]
 
 #############################
 #
@@ -171,7 +170,7 @@ ld = find_program('ld', required: true)
 #
 #############################
 
-HEADERS = ['aes.h', 'pkcs.h', 'buf.h']
+HEADERS = ['aes.h', 'pkcs.h', 'buf.h', 'rand.h']
 
 foreach header: HEADERS
   if cc.has_header(header, include_directories: include_directories('inc'), required: true) == false
@@ -219,7 +218,7 @@ if get_option('no-aesni') == false
   
   CFLAGS += ['-mvaes']            # Vectorize AES-NI Instruction
   
-  CFLAGS += ['-mgfni']            # Galois Field Instruction
+  #CFLAGS += ['-mgfni']            # Galois Field Instruction
 endif
 
 #############################

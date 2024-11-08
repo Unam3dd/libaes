@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static void	print_hex(const uint8_t *buf, size_t size)
+static void	print_hex_bytes(const uint8_t *buf, size_t size)
 {
 	static const char HEX_TAB[0x10] = {
 		'0', '1', '2',
@@ -33,16 +33,18 @@ int main(void)
 	aes_key_t	keys;
 	memset(&keys, 0, sizeof(keys));
 	urandom(keys.key_128, sizeof(keys.key_128));
+	size_t i = 0;
 
     printf("Number of keys : %zd\n", sizeof(keys.sched_128) / sizeof(aes_round_key_t));
 	printf("Original Keys :\n");
-	print_hex(keys.key_128, sizeof(keys.key_128));
+	print_hex_bytes(keys.key_128, sizeof(keys.key_128));
 
 	aes_128_key_expansion(&keys);
 
-    for (size_t i = 0; i < sizeof(keys.sched_128) / sizeof(aes_round_key_t); i++) {
-        print_hex((const uint8_t *)&(keys.sched_128[i]), sizeof(keys.sched_128[i]));
-    }
+	__asm__ volatile ("xor rbx, rbx\n\t");
+
+	while (i < 10)
+		printf("%ld\n", i++);
 
 	return (0);
 }
