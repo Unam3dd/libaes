@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_128_ecb.c                                      :+:      :+:    :+:   */
+/*   aes_128_ecb.c                                |    |  |   |   |     |_    */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/08 09:07:50 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/08 09:42:12 by stales              1993-2024            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,6 @@ aes_status_t	aes_128_ecb_enc(byte_t *restrict out, size_t o_sz, const byte_t *re
 		
 		for (j = 1; j < AES_128_NR; j++) {
 
-			//      _mm_aesenc_si128(State, RoundKey)
 			//      a[127:0] := ShiftRows(a[127:0])
 			//      a[127:0] := SubBytes(a[127:0])
 			//      a[127:0] := MixColumns(a[127:0])
@@ -142,16 +141,14 @@ aes_status_t	aes_128_ecb_dec(byte_t *restrict out, size_t o_sz, const byte_t *re
 	size_t blocks = (i_sz & 0xF ?  -~(i_sz >> 0x4) : (i_sz >> 0x4));
 
 	for (i = 0; i < blocks; i++) {
+		state = _mm_loadu_si128( &((__m128i*)in)[i]);
 
-		state = _mm_loadu_si128( &((__m128i*)in)[i] );
+        state = _mm_xor_si128(state, ctx->key.sched_128[10]);
 
-		state = _mm_aesdeclast_si128(state, ctx->key.sched_128[10]);
-
-		for (j = 9; j > 0; j--) {
-			state = _mm_aesdec_si128(state, ctx->key.sched_128[j]);
-		}
-		
-		state = _mm_xor_si128(state, ctx->key.sched_128[0]);
+        for (j = 9; j > 0; j--)
+            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched_128[j]));
+        
+        state = _mm_aesdeclast_si128(state, ctx->key.sched_128[0]);
 		_mm_storeu_si128(&((__m128i*)out)[i], state);
 	}
 

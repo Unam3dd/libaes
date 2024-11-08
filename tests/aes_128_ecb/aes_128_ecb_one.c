@@ -1,5 +1,5 @@
 #include "aes.h"
-#include "rand.h"
+//#include "rand.h"
 #include "pkcs.h"
 
 #include <stdio.h>
@@ -47,10 +47,12 @@ int main(void)
 	printf("Input buffer = ");
 	print_hex(in, sizeof(in));
 
-	if (!urandom(ctx.key.key_128, sizeof(ctx.key.key_128))) {
+    strcpy((char *)ctx.key.key_128, "AAAAAAAAAAAAAAAA");
+
+	/*if (!urandom(ctx.key.key_128, sizeof(ctx.key.key_128))) {
 		fprintf(stderr, "Error: while generating pseudo random AES 128 Key !\n");
 		return (1);
-	}
+	}*/
 
 	printf("Original AES-128-ECB Key : ");
 	print_hex(ctx.key.key_128, sizeof(ctx.key.key_128));
