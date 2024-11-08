@@ -39,7 +39,7 @@ jobs:
 
       - name: Build Default
         run: |
-          meson setup build
+          meson setup --native-file config.ini build
           meson compile -C build
 
       - name: Run tests with Default optimization
