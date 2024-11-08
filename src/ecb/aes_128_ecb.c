@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/08 09:42:12 by stales              1993-2024            */
+/*   Updated: 2024/11/08 11:29:33 by stales              1993-2024            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,9 @@ aes_status_t	aes_128_ecb_enc(byte_t *restrict out, size_t o_sz, const byte_t *re
 			state = _mm_aesenc_si128(state, ctx->key.sched_128[j]);
 		}
 
+		//      a[127:0] := ShiftRows(a[127:0])
+		//      a[127:0] := SubBytes(a[127:0])
+		//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
 		state = _mm_aesenclast_si128(state, ctx->key.sched_128[j]);
 
 		_mm_storeu_si128(&((__m128i*)out)[i], state);

@@ -47,7 +47,7 @@ int main(void)
 	printf("Input buffer = ");
 	print_hex(in, sizeof(in));
 
-    strcpy((char *)ctx.key.key_128, "AAAAAAAAAAAAAAAA");
+    memcpy((char *)ctx.key.key_128, "AAAAAAAAAAAAAAAA", 0x10);
 
 	/*if (!urandom(ctx.key.key_128, sizeof(ctx.key.key_128))) {
 		fprintf(stderr, "Error: while generating pseudo random AES 128 Key !\n");
@@ -60,7 +60,7 @@ int main(void)
 	aes_128_key_expansion(&ctx.key);
 
 	for (size_t i = 0; i < sizeof(ctx.key.sched_128) / sizeof(aes_round_key_t); i++) {
-		printf("AES-128-ECB Round Key [%d] = ", i);
+		printf("AES-128-ECB Round Key [%ld] = ", i);
 		print_hex((const uint8_t *)&ctx.key.sched_128[i], sizeof(ctx.key.sched_128[i]));
 	}
 
@@ -75,7 +75,7 @@ int main(void)
 
 	aes_128_ecb_dec(out, sizeof(out), in, sizeof(in), &ctx);
 
-	printf("Output buffer after deccryption = ");
+	printf("Output buffer after decryption = ");
 	print_hex(out, sizeof(out));
 
 	return (0);

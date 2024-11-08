@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes.h                                              :+:      :+:    :+:   */
+/*   aes.h                                        |    |  |   |   |     |_    */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/07 21:09:54 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/08 11:29:08 by stales              1993-2024            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -329,8 +329,8 @@ aes_status_t		aes_256_key_expansion(const aes_key_t *k);
 //
 ////////////////////////////////////
 
-aes_status_t	aes_128_ecb_enc(byte_t *restrict out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-aes_status_t	aes_128_ecb_dec(byte_t *restrict out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t	aes_128_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t	aes_128_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 
 /////////////////////////////////////
 //
