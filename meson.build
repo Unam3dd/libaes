@@ -8,7 +8,7 @@ project('aes', 'c',
     'strip=false',
     'b_pie=true',
     'b_staticpic=true',
-    'c_std=c11',
+    'c_std=c18',
     'buildtype=custom'
     ])
 
