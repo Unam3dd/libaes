@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_ni_128_expansion.c                       |    |  |   |   |     |_    */
+/*   aes_ni_128_expansion.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:21:57 by stales            #+#    #+#             */
-/*   Updated: 2024/11/08 14:22:00 by stales              1993-2024            */
+/*   Updated: 2024/11/08 17:46:41 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,12 +103,10 @@ static void	AES_NI_128_KEY_EXPANSION(const byte_t *cipher_key, aes_round_key_t *
 	tmp1 = AES_128_ASSIST(tmp1, tmp2);
 	sched[3] = tmp1;
 
-
 	// Round 4 - RC[4] = 0x8
 	tmp2 = _mm_aeskeygenassist_si128(tmp1, 0x8);
 	tmp1 = AES_128_ASSIST(tmp1, tmp2);
 	sched[4] = tmp1;
-
 
 	// Round 5 - RC[5] = 0x10
 	tmp2 = _mm_aeskeygenassist_si128(tmp1, 0x10);

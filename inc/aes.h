@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/08 13:48:41 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/08 18:15:25 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ typedef byte_t			aes_block_t	__attribute__((vector_size(16), aligned(16)));
 /*
  * @brief AES Round Key 16 bytes interpreted as unsigned char
  */
-typedef byte_t			aes_round_key_u8_t	__attribute__ ((vector_size(16), aligned(1)));
+typedef byte_t			aes_round_key_u8_t	__attribute__ ((vector_size(16), aligned(16)));
 
 /*
  * @brief AES Round Key 
@@ -202,9 +202,10 @@ struct s_aes_key_t
 	};
 
 	union {
+		aes_round_key_u8_t	round_keys[AES_256_NR +1];
 		
 		/* AES Key Scheduler buffer for AES-256 + 1 For the round 0  */
-		aes_round_key_t	sched_256[AES_256_NR + 1];
+		aes_round_key_t		sched_256[AES_256_NR + 1];
 		byte_t			buf_sched_256[AES_KEY_ROUND_SIZE * (AES_256_NR + 1)];
 		
 		/* AES Key Scheduler Buffer for AES-192 + 1 For the round 0 */

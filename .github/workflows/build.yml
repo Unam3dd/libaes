@@ -25,7 +25,7 @@ jobs:
           apt-get update
           apt-get upgrade -y
           apt-get clean
-          apt-get install git python3 python3-pip pkg-config clang build-essential -y
+          apt-get install git python3 python3-pip pkg-config build-essential -y
 
       - name: OS Release
         run: |
