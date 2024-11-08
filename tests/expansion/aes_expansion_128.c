@@ -48,7 +48,7 @@ int main(void)
 
 	for (size_t i = 0; i < sizeof(keys.buf_sched_128) / AES_KEY_128; i++) {
 		printf("AES-128 ROUND KEY[%ld] = ", i);
-		print_hex((const uint8_t *)(void *)&keys.round_keys[i], AES_KEY_128);
+		print_hex((const uint8_t *)&keys.round_keys[i], AES_KEY_128);
 		//print_hex((const uint8_t *)(keys.buf_sched_128 + (i * AES_KEY_128)), AES_KEY_128);
 	}
 

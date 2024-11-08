@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/08 18:15:25 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/08 20:15:56 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,15 +206,15 @@ struct s_aes_key_t
 		
 		/* AES Key Scheduler buffer for AES-256 + 1 For the round 0  */
 		aes_round_key_t		sched_256[AES_256_NR + 1];
-		byte_t			buf_sched_256[AES_KEY_ROUND_SIZE * (AES_256_NR + 1)];
+		byte_t				buf_sched_256[AES_KEY_ROUND_SIZE * (AES_256_NR + 1)];
 		
 		/* AES Key Scheduler Buffer for AES-192 + 1 For the round 0 */
-		aes_round_key_t	sched_192[AES_192_NR + 1]; 
-		byte_t			buf_sched_192[AES_KEY_ROUND_SIZE * (AES_192_NR + 1)];
+		aes_round_key_t		sched_192[AES_192_NR + 1]; 
+		byte_t				buf_sched_192[AES_KEY_ROUND_SIZE * (AES_192_NR + 1)];
 		
 		/* AES Key Scheduler Buffer for AES-128 + 1 For the round 0 */
-		aes_round_key_t	sched_128[AES_128_NR + 1];
-		byte_t			buf_sched_128[AES_KEY_ROUND_SIZE * (AES_128_NR + 1)];
+		aes_round_key_t		sched_128[AES_128_NR + 1];
+		byte_t				buf_sched_128[AES_KEY_ROUND_SIZE * (AES_128_NR + 1)];
 	};
 };
 

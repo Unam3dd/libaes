@@ -198,11 +198,11 @@ if get_option('no-aesni') == false
     endif
   endforeach
 
-  CFLAGS += ['-msse', '-msse2',  # Streaming SIMD Instruction (128 Bits XMM)
-    '-mssse3', '-msse4.1', 
-    '-msse4.2']
+  #CFLAGS += ['-msse', '-msse2',  # Streaming SIMD Instruction (128 Bits XMM)
+  #  '-mssse3', '-msse4.1', 
+  #  '-msse4.2']
 
-  #CFLAGS += ['-msse2']
+  CFLAGS += ['-msse2']
   
   CFLAGS += ['-mavx', '-mavx2', '-mavxvnni']   # AVX Instruction (256 Bits (XMM/YMM), 512 Bits (ZMM))
 

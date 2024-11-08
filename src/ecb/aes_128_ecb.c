@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_128_ecb.c                                |    |  |   |   |     |_    */
+/*   aes_128_ecb.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/08 11:29:33 by stales              1993-2024            */
+/*   Updated: 2024/11/08 19:29:25 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@
 //
 ////////////////////////////////////
 
-aes_status_t	aes_128_ecb_enc(byte_t *restrict out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
+aes_status_t	aes_128_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
 {
 	if (!ctx || !out || !in || (o_sz < i_sz))
 		return (AES_ERR);
@@ -131,7 +131,7 @@ aes_status_t	aes_128_ecb_enc(byte_t *restrict out, size_t o_sz, const byte_t *re
 	return (AES_OK);
 }
 
-aes_status_t	aes_128_ecb_dec(byte_t *restrict out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
+aes_status_t	aes_128_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
 {
 	if (!ctx || !out || !in || (o_sz < i_sz))
 		return (AES_ERR);
