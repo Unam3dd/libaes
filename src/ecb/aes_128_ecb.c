@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_128.c                                          :+:      :+:    :+:   */
+/*   aes_128_ecb.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/10/20 15:59:59 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/08 09:07:50 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,3 +74,86 @@
 
 
 #include "aes.h"
+
+#include <emmintrin.h>
+#include <wmmintrin.h>
+
+/////////////////////////////////////
+//
+//
+//	    AES 128 ELECTRONIC CODE BOOKS
+//
+//
+////////////////////////////////////
+
+aes_status_t	aes_128_ecb_enc(byte_t *restrict out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
+{
+	if (!ctx || !out || !in || (o_sz < i_sz))
+		return (AES_ERR);
+
+	if (ctx->key_size != AES_KEY_128)
+		return (AES_ERR);
+
+	__m128i state = _mm_setzero_si128();
+
+	size_t i = 0, j = 0;
+
+	// How Many iterations of 16 bytes Blocks which represent the number of state ?
+	size_t blocks = (i_sz & 0xF ?  -~(i_sz >> 0x4) : (i_sz >> 0x4));
+
+	for (i = 0; i < blocks; i++) {
+
+		// Load State
+		state = _mm_loadu_si128( &((__m128i*)in)[i]);
+
+		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
+		state = _mm_xor_si128(state, ctx->key.sched_128[0]);
+		
+		for (j = 1; j < AES_128_NR; j++) {
+
+			//      _mm_aesenc_si128(State, RoundKey)
+			//      a[127:0] := ShiftRows(a[127:0])
+			//      a[127:0] := SubBytes(a[127:0])
+			//      a[127:0] := MixColumns(a[127:0])
+			//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
+	
+			state = _mm_aesenc_si128(state, ctx->key.sched_128[j]);
+		}
+
+		state = _mm_aesenclast_si128(state, ctx->key.sched_128[j]);
+
+		_mm_storeu_si128(&((__m128i*)out)[i], state);
+	}
+
+
+	return (AES_OK);
+}
+
+aes_status_t	aes_128_ecb_dec(byte_t *restrict out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
+{
+	if (!ctx || !out || !in || (o_sz < i_sz))
+		return (AES_ERR);
+
+	if (ctx->key_size != AES_KEY_128)
+		return (AES_ERR);
+
+	__m128i state = _mm_setzero_si128();
+	size_t i = 0, j = 0;
+	size_t blocks = (i_sz & 0xF ?  -~(i_sz >> 0x4) : (i_sz >> 0x4));
+
+	for (i = 0; i < blocks; i++) {
+
+		state = _mm_loadu_si128( &((__m128i*)in)[i] );
+
+		state = _mm_aesdeclast_si128(state, ctx->key.sched_128[10]);
+
+		for (j = 9; j > 0; j--) {
+			state = _mm_aesdec_si128(state, ctx->key.sched_128[j]);
+		}
+		
+		state = _mm_xor_si128(state, ctx->key.sched_128[0]);
+		_mm_storeu_si128(&((__m128i*)out)[i], state);
+	}
+
+	return (AES_OK);
+}

@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:21:57 by stales            #+#    #+#             */
-/*   Updated: 2024/11/04 13:58:37 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/05 21:11:46 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,6 @@ static void	AES_NI_192_KEY_EXPANSION(const byte_t *cipher_key, aes_round_key_t *
 	sched[4] = (__m128i)_mm_shuffle_pd((__m128d)sched[4], (__m128d)tmp1, 0x0);
 	sched[5] = (__m128i)_mm_shuffle_pd((__m128d)tmp1, (__m128d)tmp3, 0x1);
 
-
 	// RC[4] = 0x8
 	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x8);
 	AES_192_ASSIST(&tmp1, &tmp2, &tmp3);
@@ -137,6 +136,14 @@ static void	AES_NI_192_KEY_EXPANSION(const byte_t *cipher_key, aes_round_key_t *
 	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x80);
 	AES_192_ASSIST(&tmp1, &tmp2, &tmp3);
 	sched[12] = tmp1;
+}
+
+#else
+
+static void	AES_NI_192_KEY_EXPANSION(const byte_t *cipher_key, aes_round_key_t *sched)
+{
+	(void)cipher_key, (void)sched;
+	return ;
 }
 
 #endif

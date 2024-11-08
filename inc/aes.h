@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/10/31 10:30:40 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/07 21:09:54 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,14 +144,27 @@ typedef enum e_aes_key_size_t
 
 typedef enum e_aes_modes_t
 {
-	ECB,		/* Electronic Code Books */
-	CBC,		/* Cipher Block Chaining */
-	CFB,		/* Cipher Feedback 		 */
-	OFB,		/* Output Feedback		 */
-	CTR,		/* Counter Mode			 */
-	CTS,		/* CipherText Stealing	 */
-	GCM,		/* Galois Counter Mode	 */
-	XTS			/* Xex-Tcb-Cts			 */
+	AES_128_ECB,		/* Electronic Code Books */
+	AES_192_ECB,		/* Electronic Code Books */
+	AES_256_ECB,		/* Electronic Code Books */
+	AES_128_CBC,		/* Cipher Block Chaining */
+	AES_192_CBC,		/* Cipher Block Chaining */
+	AES_256_CBC,		/* Cipher Block Chaining */
+	AES_128_CFB,		/* Cipher Feedback 		 */
+	AES_192_CFB,		/* Cipher Feedback 		 */
+	AES_256_CFB,		/* Cipher Feedback 		 */
+	AES_128_OFB,		/* Output Feedback		 */
+	AES_192_OFB,		/* Output Feedback		 */
+	AES_256_OFB,		/* Output Feedback		 */
+	AES_128_CTR,		/* Counter Mode			 */
+	AES_192_CTR,		/* Counter Mode			 */
+	AES_256_CTR,		/* Counter Mode			 */
+	AES_128_CTS,		/* CipherText Stealing	 */
+	AES_192_CTS,		/* CipherText Stealing	 */
+	AES_256_CTS,		/* CipherText Stealing	 */
+	AES_128_GCM,		/* Galois Counter Mode	 */
+	AES_192_GCM,		/* Galois Counter Mode	 */
+	AES_256_GCM,		/* Galois Counter Mode	 */
 } aes_modes_t;
 
 typedef enum e_aes_status_t
@@ -206,8 +219,9 @@ struct s_aes_key_t
 
 struct s_aes_ctx_t
 {
-	aes_key_t		key;	/* Key & Key Scheduler 		*/
-	aes_modes_t		mode;	/* Mode used in the context */
+	aes_key_t		key;		/* Key & Key Scheduler 		*/
+	aes_key_size_t	key_size;	/* Size of the key			*/
+	aes_modes_t		mode;		/* Mode used in the context */
 };
 
 struct s_aes_buf_t
@@ -315,8 +329,8 @@ aes_status_t		aes_256_key_expansion(const aes_key_t *k);
 //
 ////////////////////////////////////
 
-//aes_status_t	aes_ecb_enc(aes_buf_t *c, const aes_buf_t *p, const aes_ctx_t *ctx);
-//aes_status_t	aes_ecb_dec(aes_buf_t *p, const aes_buf_t *c, const aes_ctx_t *ctx);
+aes_status_t	aes_128_ecb_enc(byte_t *restrict out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t	aes_128_ecb_dec(byte_t *restrict out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 
 /////////////////////////////////////
 //

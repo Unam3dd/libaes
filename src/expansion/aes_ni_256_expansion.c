@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:21:57 by stales            #+#    #+#             */
-/*   Updated: 2024/10/31 10:21:13 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/05 21:12:23 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,6 +157,14 @@ static void	AES_NI_256_KEY_EXPANSION(const byte_t *cipher_key, aes_round_key_t *
 	tmp2 = _mm_aeskeygenassist_si128(tmp3, 0x40);
 	AES_NI_256_ASSIST(&tmp1, &tmp2);
 	sched[14] = tmp1;
+}
+
+#else
+
+static void	AES_NI_256_KEY_EXPANSION(const byte_t *cipher_key, aes_round_key_t *sched)
+{
+	(void)cipher_key, (void)sched;
+	return ;
 }
 
 #endif

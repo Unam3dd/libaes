@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:21:57 by stales            #+#    #+#             */
-/*   Updated: 2024/10/31 10:23:50 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/05 21:09:22 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ static inline aes_round_key_t AES_128_ASSIST(__m128i tmp1, __m128i tmp2)
 
 static void	AES_NI_128_KEY_EXPANSION(const byte_t *cipher_key, aes_round_key_t *sched)
 {
+
 	__m128i			tmp1 = _mm_setzero_si128();
 	__m128i			tmp2 = _mm_setzero_si128();
 
@@ -145,4 +146,10 @@ static void	AES_NI_128_KEY_EXPANSION(const byte_t *cipher_key, aes_round_key_t *
 	sched[10] = tmp1;
 }
 
+#else
+static void	AES_NI_128_KEY_EXPANSION(const byte_t *cipher_key, aes_round_key_t *sched)
+{
+	(void)cipher_key, (void)sched;
+	return ;
+}
 #endif

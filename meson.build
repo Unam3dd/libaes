@@ -32,8 +32,10 @@ INC_DIR = ['inc']
 SRCS_RC = ['src/rc/rc.c']
 SRCS_PKCS = ['src/pkcs/pkcs.c']
 SRCS_EXPANSION = ['src/expansion/aes_128_expansion.c', 'src/expansion/aes_192_expansion.c', 'src/expansion/aes_256_expansion.c']
+SRCS_RANDOM = ['src/random/rdrnd.c', 'src/random/urandom.c']
+SRCS_AES_128_ECB = ['src/ecb/aes_128_ecb.c']
 
-SRCS = [SRCS_PKCS, SRCS_RC, SRCS_EXPANSION]
+SRCS = [SRCS_PKCS, SRCS_RC, SRCS_EXPANSION, SRCS_RANDOM, SRCS_AES_128_ECB]
 SRCS_FILES = files(SRCS)
 
 #############################
@@ -80,7 +82,7 @@ CFLAGS += [STACK_PROTECTOR, '-fno-builtin']
 #
 #############################
 
-TEST_SUBPROJECT = ['tests/pkcs', 'tests/rc']
+TEST_SUBPROJECT = ['tests/pkcs', 'tests/rc', 'tests/expansion', 'tests/random', 'tests/aes_128_ecb']
 
 #############################
 #
