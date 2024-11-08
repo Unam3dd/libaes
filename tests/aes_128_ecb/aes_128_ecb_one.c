@@ -59,9 +59,9 @@ int main(void)
 
 	aes_128_key_expansion(&ctx.key);
 
-	for (size_t i = 0; i < sizeof(ctx.key.sched_128) / sizeof(aes_round_key_t); i++) {
+	for (size_t i = 0; i < AES_128_NR+1; i++) {
 		printf("AES-128-ECB Round Key [%ld] = ", i);
-		print_hex((const uint8_t *)&ctx.key.sched_128[i], sizeof(ctx.key.sched_128[i]));
+		print_hex((const uint8_t *)&ctx.key.round_keys[i], AES_KEY_128);
 	}
 
 	aes_128_ecb_enc(out, sizeof(out), in, sizeof(in), &ctx);
