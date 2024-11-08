@@ -25,7 +25,7 @@ jobs:
           apt-get update
           apt-get upgrade -y
           apt-get clean
-          apt-get install git python3 python3-pip pkg-config gcc build-essential valgrind -y
+          apt-get install git python3 python3-pip pkg-config gcc clang build-essential valgrind -y
 
       - name: OS Release
         run: |
@@ -45,25 +45,25 @@ jobs:
 
       - name: Build custom
         run: |
-          meson setup build --buildtype=custom
+          meson setup --native-file config.ini build --buildtype=custom
           meson compile -C build
           rm -rf build
       
       - name: Build debug
         run: |
-          meson setup build --buildtype=debug
+          meson setup build --native-file config.ini --buildtype=debug
           meson compile -C build
           rm -rf build
 
       - name: Build release
         run: |
-          meson setup build --buildtype=release
+          meson setup --native-file config.ini build --buildtype=release
           meson compile -C build
           rm -rf build
 
       - name: Build Project
         run: |
-          meson setup build --buildtype=debug
+          meson setup --native-file config.ini build --buildtype=debug
           meson compile -C build
 
       - name: Run tests

@@ -4,8 +4,9 @@
 #include <immintrin.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
-static void	print_hex_bytes(const uint8_t *buf, size_t size)
+void	print_hex_bytes(const uint8_t *buf, size_t size)
 {
 	static const char HEX_TAB[0x10] = {
 		'0', '1', '2',
@@ -19,32 +20,46 @@ static void	print_hex_bytes(const uint8_t *buf, size_t size)
 	if (!buf) return ;
 
 	while (size > 0) {
-		putchar(HEX_TAB[*buf >> 0x4 & 0xF]);
-		putchar(HEX_TAB[*buf++ & 0xF]);
-		putchar(' ');
-		size--;
-	}
+        
+        fflush(stdout);
+       
+        if (write(1, (const void *)&HEX_TAB[(*buf >> 0x4) & 0xF], 1) != 1)
+            return ;
 
-	putchar('\n');
+        if (write(1, (const void *)&HEX_TAB[*buf++ & 0xF], 1) != 1)
+            return ;
+
+        if (write(1, " ", 1) != 1)
+            return ;
+        
+		size--;
+
+        fflush(stdout);
+	}
+    
+    fflush(stdout);
+
+    if (write(1, "\n", 1) != 1)
+        return ;
 }
 
 int main(void)
 {
 	aes_key_t	keys;
-	memset(&keys, 0, sizeof(keys));
-	urandom(keys.key_128, sizeof(keys.key_128));
-	size_t i = 0;
+	
+    memset(&keys, 0, sizeof(keys));
+	
+    urandom(keys.key_128, sizeof(keys.key_128));
 
     printf("Number of keys : %zd\n", sizeof(keys.sched_128) / sizeof(aes_round_key_t));
-	printf("Original Keys :\n");
-	print_hex_bytes(keys.key_128, sizeof(keys.key_128));
+	
+    aes_128_key_expansion(&keys);
+    
+    puts("Original Keys :\n");
 
-	aes_128_key_expansion(&keys);
-
-	__asm__ volatile ("xor rbx, rbx\n\t");
-
-	while (i < 10)
-		printf("%ld\n", i++);
+    for (size_t i = 0; i < sizeof(keys.sched_128) / sizeof(aes_round_key_t); i++) {
+        print_hex_bytes((const uint8_t *)(&keys.sched_128[i]), sizeof(keys.sched_128[i]));
+    }
 
 	return (0);
 }

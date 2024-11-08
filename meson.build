@@ -8,7 +8,7 @@ project('aes', 'c',
     'strip=false',
     'b_pie=true',
     'b_staticpic=true',
-    'c_std=c18',
+    'c_std=c11',
     'buildtype=custom'
     ])
 
@@ -44,10 +44,11 @@ SRCS_FILES = files(SRCS)
 #
 #############################
 
-CFLAGS = ['-D_FORTIFY_SOURCE=2', '-masm=intel']
+CFLAGS = ['-D_FORTIFY_SOURCE=0', '-masm=intel']
 #CFLAGS = ['-masm=intel']
 LDFLAGS = []
-TEST_CFLAGS = ['-g', '-fPIC']
+TEST_CFLAGS = ['-ggdb', '-gdwarf', '-fPIC']
+TEST_LDFLAGS = []
 #LDFLAGS = ['-nostdlib', '-nodefaultlibs']
 PIE = true
 
@@ -218,7 +219,7 @@ if get_option('no-aesni') == false
   
   CFLAGS += ['-mvaes']            # Vectorize AES-NI Instruction
   
-  #CFLAGS += ['-mgfni']            # Galois Field Instruction
+  CFLAGS += ['-mgfni']            # Galois Field Instruction
 endif
 
 #############################

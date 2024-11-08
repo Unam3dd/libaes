@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_ni_128_expansion.c                             :+:      :+:    :+:   */
+/*   aes_ni_128_expansion.c                       |    |  |   |   |     |_    */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:21:57 by stales            #+#    #+#             */
-/*   Updated: 2024/11/08 13:50:52 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/08 14:22:00 by stales              1993-2024            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ static inline aes_round_key_t AES_128_ASSIST(__m128i tmp1, __m128i tmp2)
 	return (tmp1);
 }
 
-static void	AES_NI_128_KEY_EXPANSION(const byte_t *cipher_key, aes_round_key_t sched[AES_128_NR+1])
+static void	AES_NI_128_KEY_EXPANSION(const byte_t *cipher_key, aes_round_key_t *sched)
 {
 	__m128i			tmp1 = _mm_setzero_si128();
 	__m128i			tmp2 = _mm_setzero_si128();
