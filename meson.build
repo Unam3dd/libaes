@@ -33,9 +33,9 @@ SRCS_RC = ['src/rc/rc.c']
 SRCS_PKCS = ['src/pkcs/pkcs.c']
 SRCS_EXPANSION = ['src/expansion/aes_128_expansion.c', 'src/expansion/aes_192_expansion.c', 'src/expansion/aes_256_expansion.c']
 SRCS_RANDOM = ['src/random/rdrnd.c', 'src/random/urandom.c']
-SRCS_AES_128_ECB = ['src/ecb/aes_128_ecb.c']
+SRCS_AES_ECB = ['src/ecb/aes_128_ecb.c', 'src/ecb/aes_192_ecb.c', 'src/ecb/aes_256_ecb.c', 'src/ecb/aes_ecb.c']
 
-SRCS = [SRCS_PKCS, SRCS_RC, SRCS_EXPANSION, SRCS_RANDOM, SRCS_AES_128_ECB]
+SRCS = [SRCS_PKCS, SRCS_RC, SRCS_EXPANSION, SRCS_RANDOM, SRCS_AES_ECB]
 SRCS_FILES = files(SRCS)
 
 #############################
@@ -44,7 +44,7 @@ SRCS_FILES = files(SRCS)
 #
 #############################
 
-CFLAGS = ['-D_FORTIFY_SOURCE=0', '-masm=intel']
+CFLAGS = ['-D_FORTIFY_SOURCE=0', '-DAES_ECB_ALL=1', '-masm=intel']
 #CFLAGS = ['-masm=intel']
 LDFLAGS = []
 TEST_CFLAGS = ['-ggdb', '-gdwarf', '-fPIC']
@@ -82,7 +82,7 @@ endif
 #
 #############################
 
-TEST_SUBPROJECT = ['tests/pkcs', 'tests/rc', 'tests/expansion', 'tests/random', 'tests/aes_128_ecb']
+TEST_SUBPROJECT = ['tests/pkcs', 'tests/rc', 'tests/expansion', 'tests/random', 'tests/aes_ecb']
 
 #############################
 #

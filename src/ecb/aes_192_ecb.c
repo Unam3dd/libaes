@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_128_ecb.c                                      :+:      :+:    :+:   */
+/*   aes_192_ecb.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/09 10:00:13 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/09 10:00:24 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@
  *
  */
 
+
 #include "aes.h"
 
 #ifdef AES_ECB_ALL
@@ -82,17 +83,17 @@
 /////////////////////////////////////
 //
 //
-//	    AES 128 ELECTRONIC CODE BOOKS
+//	    AES 192 ELECTRONIC CODE BOOKS
 //
 //
 ////////////////////////////////////
 
-aes_status_t	aes_128_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
+aes_status_t	aes_192_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
 {
 	if (!ctx || !out || !in || (o_sz < i_sz))
 		return (AES_ERR);
 
-	if (ctx->key_size != AES_KEY_128)
+	if (ctx->key_size != AES_KEY_192)
 		return (AES_ERR);
 
 	__m128i state = _mm_setzero_si128();
@@ -108,22 +109,22 @@ aes_status_t	aes_128_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in
 		state = _mm_loadu_si128( &((__m128i*)in)[i]);
 
 		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
-		state = AddRoundKey(state, ctx->key.sched_128[0]);
+		state = AddRoundKey(state, ctx->key.sched_192[0]);
 		
-		for (j = 1; j < AES_128_NR; j++) {
+		for (j = 1; j < AES_192_NR; j++) {
 
 			//      a[127:0] := ShiftRows(a[127:0])
 			//      a[127:0] := SubBytes(a[127:0])
 			//      a[127:0] := MixColumns(a[127:0])
 			//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
 	
-			state = _mm_aesenc_si128(state, ctx->key.sched_128[j]);
+			state = _mm_aesenc_si128(state, ctx->key.sched_192[j]);
 		}
 
 		//      a[127:0] := ShiftRows(a[127:0])
 		//      a[127:0] := SubBytes(a[127:0])
 		//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
-		state = _mm_aesenclast_si128(state, ctx->key.sched_128[j]);
+		state = _mm_aesenclast_si128(state, ctx->key.sched_192[j]);
 
 		_mm_storeu_si128(&((__m128i*)out)[i], state);
 	}
@@ -132,12 +133,12 @@ aes_status_t	aes_128_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in
 	return (AES_OK);
 }
 
-aes_status_t	aes_128_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
+aes_status_t	aes_192_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
 {
 	if (!ctx || !out || !in || (o_sz < i_sz))
 		return (AES_ERR);
 
-	if (ctx->key_size != AES_KEY_128)
+	if (ctx->key_size != AES_KEY_192)
 		return (AES_ERR);
 
 	__m128i state = _mm_setzero_si128();
@@ -145,21 +146,25 @@ aes_status_t	aes_128_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in
 	size_t blocks = (i_sz & 0xF ?  -~(i_sz >> 0x4) : (i_sz >> 0x4));
 
 	for (i = 0; i < blocks; i++) {
+		
 		state = _mm_loadu_si128( &((__m128i*)in)[i]);
 
-        state = AddRoundKey(state, ctx->key.sched_128[AES_128_NR]);
+        state = AddRoundKey(state, ctx->key.sched_192[AES_192_NR]);
 
-        for (j = AES_128_NR - 1; j > 0; j--) {
-
+        for (j = AES_192_NR - 1; j > 0; j--) {
+			
 			//      a[127:0] := ShiftRows(a[127:0])
 			//      a[127:0] := SubBytes(a[127:0])
-			//      a[127:0] := MixColumns(a[127:0])
+			//      a[127:0] := InvMixColumns(a[127:0])
 			//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
-
-            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched_128[j]));
+            
+			state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched_192[j]));
 		}
         
-        state = _mm_aesdeclast_si128(state, ctx->key.sched_128[0]);
+		//      a[127:0] := ShiftRows(a[127:0])
+		//      a[127:0] := SubBytes(a[127:0])
+		//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
+        state = _mm_aesdeclast_si128(state, ctx->key.sched_192[0]);
 		_mm_storeu_si128(&((__m128i*)out)[i], state);
 	}
 

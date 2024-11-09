@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/07 18:21:42 by stales            #+#    #+#             */
-/*   Updated: 2024/11/07 20:15:59 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/09 09:17:36 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ uint8_t	*rdrnd(uint8_t *restrict buf, size_t size)
 	}
 
 	while (size > 0) {
-		_rdrand64_step((unsigned long long*)ptr);
+		_rdrand64_step((unsigned long long *)ptr);
 		ptr += sizeof(unsigned long long);
 		size -= sizeof(unsigned long long);
 	}

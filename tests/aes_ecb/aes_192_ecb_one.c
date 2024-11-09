@@ -1,6 +1,6 @@
-#include "aes.h"
-//#include "rand.h"
 #include "pkcs.h"
+
+#include "aes.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -39,22 +39,22 @@ int main(void)
 	memset(out, 0, sizeof(out));
 	memset(&ctx, 0, sizeof(ctx));
 
-	ctx.key_size = AES_KEY_128;
-	ctx.mode = AES_128_ECB;
+	ctx.key_size = AES_KEY_192;
+	ctx.mode = AES_192_ECB;
 
 	strncpy((char *)in, "hello world !!!!", sizeof(in));
 
-	//printf("Input buffer = ");
-	//print_hex(in, sizeof(in));
+	printf("Input buffer = ");
+	print_hex(in, sizeof(in));
 
-    memcpy((char *)ctx.key.key_128, "AAAAAAAAAAAAAAAA", 0x10);
+	memset(ctx.key.key_192, 'A', 0x18);
 
-	//printf("Original AES-128-ECB Key : ");
-	//print_hex(ctx.key.key_128, sizeof(ctx.key.key_128));
+	printf("Original AES-192-ECB Key : ");
+	print_hex(ctx.key.key_192, sizeof(ctx.key.key_192));
 
-	aes_128_key_expansion(&ctx.key);
+	aes_192_key_expansion(&ctx.key);
 
-	aes_128_ecb_enc(out, sizeof(out), in, sizeof(in), &ctx);
+	aes_192_ecb_enc(out, sizeof(out), in, sizeof(in), &ctx);
 
 	printf("Output buffer after encryption = ");
 	print_hex(out, sizeof(out));
@@ -63,7 +63,7 @@ int main(void)
 
 	memset(out, 0, sizeof(out));
 
-	aes_128_ecb_dec(out, sizeof(out), in, sizeof(in), &ctx);
+	aes_192_ecb_dec(out, sizeof(out), in, sizeof(in), &ctx);
 
 	printf("Output buffer after decryption = ");
 	print_hex(out, sizeof(out));

@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/08 20:15:56 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/09 09:59:54 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,7 +202,9 @@ struct s_aes_key_t
 	};
 
 	union {
-		aes_round_key_u8_t	round_keys[AES_256_NR +1];
+		aes_round_key_u8_t	round_keys[AES_256_NR + 1];
+
+		aes_round_key_t		sched[AES_256_NR + 1];
 		
 		/* AES Key Scheduler buffer for AES-256 + 1 For the round 0  */
 		aes_round_key_t		sched_256[AES_256_NR + 1];
@@ -325,13 +327,54 @@ aes_status_t		aes_256_key_expansion(const aes_key_t *k);
 /////////////////////////////////////
 //
 //
+//	  		AES-ECB 
 //	  Electronic Code Books (ECB)
 //
 //
 ////////////////////////////////////
 
-aes_status_t	aes_128_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-aes_status_t	aes_128_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+
+
+#ifdef AES_ECB_ALL
+/////////////////////////////////////
+//
+//
+//	  		AES-128-ECB 
+//	  Electronic Code Books (ECB)
+//
+//
+////////////////////////////////////
+
+aes_status_t		aes_128_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_128_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+
+/////////////////////////////////////
+//
+//
+//	  		AES-192-ECB 
+//	  Electronic Code Books (ECB)
+//
+//
+////////////////////////////////////
+
+aes_status_t		aes_192_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_192_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+
+/////////////////////////////////////
+//
+//
+//	  		AES-256-ECB 
+//	  Electronic Code Books (ECB)
+//
+//
+////////////////////////////////////
+
+aes_status_t		aes_256_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_256_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+
+#endif
 
 /////////////////////////////////////
 //
@@ -346,6 +389,10 @@ aes_status_t	aes_128_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in
 #else
 #undef RC
 #define RC(i) (round_constant(i))
+#endif
+
+#ifndef AddRoundKey
+#define AddRoundKey(state, expandedkey) (_mm_xor_si128(state, expandedkey))
 #endif
 
 #endif
