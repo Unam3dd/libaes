@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 14:09:21 by stales            #+#    #+#             */
-/*   Updated: 2024/10/20 08:44:56 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/12 21:05:55 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ pkcs_status_t	pkcs_pad(uint8_t *buf, size_t buf_size, size_t size, uint8_t blk)
 
 	pad = PKCS_PAD_LEN(blk, size);
 
-	if ((size_t)(size + pad) >= buf_size)
+	if ((size_t)(size + pad) > buf_size)
 		return (PKCS_ERR_BUF_TOO_SMALL);
 
 	memset((uint8_t*)&buf[size], pad, pad);

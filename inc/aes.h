@@ -6,13 +6,14 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/09 09:59:54 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/12 22:00:48 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef AES_H
 #define AES_H
 
+#include <sys/cdefs.h>
 #if !defined (__x86_64__)
 #error "This library can be used only on x86 architecture because is used AES-NI instruction set !"
 #endif
@@ -290,16 +291,45 @@ struct s_aes_buf_t
 * @return bool_t	return TRUE or FALSE depending on the CPU.
 */
 
-static inline bool_t	check_cpu_support_aes(void)
+__attribute__((optimize("O0"), __always_inline__))
+static inline bool_t	check_cpuid_support_aes(void)
 {
-	uint32_t	ecx = 0;
+	uint32_t		ecx = 0;
 
-	__asm__ __volatile__("cpuid\n\t"
+	__asm__ volatile ("push rbx\n\t"
+			"push rcx\n\t"
+			"push rdx\n\t"
+			"cpuid\n\t"
 			: "=c" (ecx)
 			: "a" (1)
+			: "memory"
+			);
+
+	__asm__ volatile ("pop rdx\n\t"
+			"pop rcx\n\t"
+			"pop rbx\n\t"
+			:
+			:
+			: "memory"
 			);
 
 	return ((ecx & (1 << 25)) ? TRUE : FALSE);
+}
+
+__attribute__((__always_inline__))
+static inline bool_t	cpu_support_aes(void)
+{
+	static bool_t	init = FALSE;
+	static bool_t	aes_ni = FALSE;
+
+	if (init)
+		return (aes_ni);
+
+	init = TRUE;
+	
+	aes_ni = (bool_t)check_cpuid_support_aes();
+
+	return (aes_ni);
 }
 
 /////////////////////////////////////
@@ -336,8 +366,6 @@ aes_status_t		aes_256_key_expansion(const aes_key_t *k);
 aes_status_t		aes_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 aes_status_t		aes_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 
-
-#ifdef AES_ECB_ALL
 /////////////////////////////////////
 //
 //
@@ -373,8 +401,6 @@ aes_status_t		aes_192_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict i
 
 aes_status_t		aes_256_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 aes_status_t		aes_256_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-
-#endif
 
 /////////////////////////////////////
 //

@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/09 09:57:46 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/12 21:24:47 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,7 @@ aes_status_t	aes_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, si
 
         state = AddRoundKey(state, ctx->key.sched[NR]);
 
-        for (j = NR - 1; j > 0; j--) {
+        for (j = ~-NR; j > 0; j--) {
 
 			//      a[127:0] := ShiftRows(a[127:0])
 			//      a[127:0] := SubBytes(a[127:0])

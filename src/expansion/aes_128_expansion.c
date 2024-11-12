@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:11:52 by stales            #+#    #+#             */
-/*   Updated: 2024/11/08 20:58:44 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/12 21:36:23 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,25 +36,7 @@ aes_status_t	aes_128_key_expansion(const aes_key_t *k)
 {
 	if (!k) return (AES_ERR);
 
-	bool_t aes_ni = FALSE;
-
-	__asm__ volatile ("push rbx\n\t"
-			"push rcx\n\t"
-			"push rdx\n\t"
-			:
-			:
-			: "memory");
-
-	aes_ni = check_cpu_support_aes();
-
-	__asm__ volatile ("pop rdx\n\t"
-			"pop rcx\n\t"
-			"pop rbx\n\t"
-			:
-			:
-			: "memory");
-
-	if (aes_ni)
+	if (cpu_support_aes())
 		AES_NI_128_KEY_EXPANSION(k->key_128, (aes_round_key_t *)k->sched_128);
 
 	return (AES_OK);

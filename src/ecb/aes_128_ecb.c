@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/09 10:00:13 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/10 14:43:58 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,8 +73,6 @@
  */
 
 #include "aes.h"
-
-#ifdef AES_ECB_ALL
 
 #include <emmintrin.h>
 #include <wmmintrin.h>
@@ -166,4 +164,3 @@ aes_status_t	aes_128_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in
 	return (AES_OK);
 }
 
-#endif

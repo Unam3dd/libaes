@@ -1,5 +1,6 @@
-#include "pkcs.h"
+#define AES_ECB_ALL
 
+#include "pkcs.h"
 #include "aes.h"
 
 #include <stdio.h>
@@ -32,8 +33,8 @@ int main(void)
 {
 	aes_ctx_t ctx;
 	
-	uint8_t in[0x20];
-	uint8_t out[0x20];
+	uint8_t in[0x40];
+	uint8_t out[0x40];
 
 	memset(in, 0, sizeof(in));
 	memset(out, 0, sizeof(out));
@@ -43,6 +44,13 @@ int main(void)
 	ctx.mode = AES_128_ECB;
 
 	strncpy((char *)in, "hello world !!!!", sizeof(in));
+
+	pkcs_status_t status = PKCS_OK;
+
+	if ((status = pkcs_pad(in, sizeof(in), strlen((char *)in), 0x10)) != PKCS_OK) {
+		fprintf(stderr, "Error: pkcs_pad() = %d\n", status);
+		return (1);
+	}
 
 	printf("Input buffer = ");
 	print_hex(in, sizeof(in));
@@ -68,5 +76,14 @@ int main(void)
 	printf("Output buffer after decryption = ");
 	print_hex(out, sizeof(out));
 
+	if ((status = pkcs_unpad(out, sizeof(out), 0x20, 0x10)) != PKCS_OK) {
+		fprintf(stderr, "Error: pkcs_unpad() = %d\n", status);
+		return (1);
+	}
+
+	printf("Output buffer after unpad = ");
+	print_hex(out, sizeof(out));
+
 	return (0);
 }
+
