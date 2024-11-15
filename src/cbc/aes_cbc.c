@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   aes_cbc.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
+/*   Updated: 2024/11/15 18:26:15 by stales           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 /*
  * 										AES Algorithm
@@ -66,9 +77,17 @@
 #include <emmintrin.h>
 #include <wmmintrin.h>
 
-aes_status_t	aes_192_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
+/////////////////////////////////////
+//
+//
+//	    AES ELECTRONIC CODE BOOKS
+//
+//
+////////////////////////////////////
+
+aes_status_t	aes_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
 {
-	if (!ctx || !out || !in || (o_sz < i_sz) || ctx->key_size != AES_KEY_192)
+	if (!ctx || !out || !in || (o_sz < i_sz))
 		return (AES_ERR);
 
 	if (ctx->pad && IS_NOT_ALIGNED(i_sz, AES_BLOCK_SIZE))
@@ -79,40 +98,41 @@ aes_status_t	aes_192_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *re
 
 	size_t i = 0, j = 0;
 
+	size_t NR = (ctx->key_size == AES_KEY_128
+		? AES_128_NR 
+		: ctx->key_size == AES_KEY_192 
+		? AES_192_NR
+		: AES_256_NR);
+
 	// How Many iterations of 16 bytes Blocks which represent the number of state ?
 	size_t blocks = (i_sz & 0xF ?  -~(i_sz >> 0x4) : (i_sz >> 0x4));
 
-    feedback = _mm_loadu_si128((__m128i*)iv);
+	feedback = _mm_loadu_si128((__m128i*)iv);
 
 	for (i = 0; i < blocks; i++) {
 
 		// Load State
 		state = _mm_loadu_si128( &((__m128i*)in)[i]);
 
-        // Xoring State with IV
-        feedback = _mm_xor_si128(state, feedback);
+		feedback = _mm_xor_si128(state, feedback);
 
-		// Xor feedback with first round Key (This XOR is equal to first AddRounKey Transformation)
-		feedback = AddRoundKey(feedback, ctx->key.sched_192[0]);
+		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
+		feedback = AddRoundKey(feedback, ctx->key.sched[0]);
 		
-		for (j = 1; j < AES_192_NR; j++) {
+		for (j = 1; j < NR; j++) {
 
 			//      a[127:0] := ShiftRows(a[127:0])
 			//      a[127:0] := SubBytes(a[127:0])
 			//      a[127:0] := MixColumns(a[127:0])
 			//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
 	
-			feedback = _mm_aesenc_si128(feedback, ctx->key.sched_192[j]);
+			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j]);
 		}
 
 		//      a[127:0] := ShiftRows(a[127:0])
 		//      a[127:0] := SubBytes(a[127:0])
 		//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
-        //
-        //      Note The output of the feedback is xored to the next iterations
-        //      He replace the IV after the first round !
-
-		feedback = _mm_aesenclast_si128(feedback, ctx->key.sched_192[j]);
+		feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[j]);
 
 		_mm_storeu_si128(&((__m128i*)out)[i], feedback);
 	}
@@ -121,45 +141,49 @@ aes_status_t	aes_192_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *re
 	return (AES_OK);
 }
 
-aes_status_t	aes_192_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
+aes_status_t	aes_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
 {
-	if (!ctx || !out || !in || (o_sz < i_sz) || ctx->key_size != AES_KEY_192)
+	if (!ctx || !out || !in || (o_sz < i_sz))
 		return (AES_ERR);
 
 	if (ctx->pad && IS_NOT_ALIGNED(i_sz, AES_BLOCK_SIZE))
 		return (AES_ERR_BLOCK_PAD);
 
 	__m128i state = _mm_setzero_si128();
-    __m128i feedback = _mm_setzero_si128();
+	__m128i feedback = _mm_setzero_si128();
 	size_t i = 0, j = 0;
+
+	size_t NR = (ctx->key_size == AES_KEY_128
+		? AES_128_NR 
+		: ctx->key_size == AES_KEY_192 
+		? AES_192_NR
+		: AES_256_NR);
+	
 	size_t blocks = (i_sz & 0xF ?  -~(i_sz >> 0x4) : (i_sz >> 0x4));
 
-    feedback = _mm_loadu_si128((__m128i*)iv);
+	feedback = _mm_loadu_si128((__m128i*)iv);
 
 	for (i = 0; i < blocks; i++) {
+		
 		state = _mm_loadu_si128( &((__m128i*)in)[i]);
 
-        state = AddRoundKey(state, ctx->key.sched_192[AES_192_NR]);
+        state = AddRoundKey(state, ctx->key.sched[NR]);
 
-        for (j = ~-AES_192_NR; j > 0; j--) {
+        for (j = ~-NR; j > 0; j--) {
 
 			//      a[127:0] := ShiftRows(a[127:0])
 			//      a[127:0] := SubBytes(a[127:0])
 			//      a[127:0] := MixColumns(a[127:0])
 			//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
 
-            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched_192[j]));
+            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j]));
 		}
         
-        state = _mm_aesdeclast_si128(state, ctx->key.sched_192[0]);
+        state = _mm_aesdeclast_si128(state, ctx->key.sched[0]);
+		feedback = _mm_xor_si128(state, feedback);
 
-        // Xoring state with IV for the first round.
-        // The current feedback will be xored with the next decrypted block
-        feedback = _mm_xor_si128(state, feedback);
-		
-        _mm_storeu_si128(&((__m128i*)out)[i], feedback);
+		_mm_storeu_si128(&((__m128i*)out)[i], feedback);
 	}
 
 	return (AES_OK);
 }
-

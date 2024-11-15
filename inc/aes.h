@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes.h                                        |    |  |   |   |     |_    */
+/*   aes.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/15 17:06:59 by stales              1993-2024            */
+/*   Updated: 2024/11/15 18:23:32 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,10 @@
 
 #ifndef ALIGN_BLOCK
 #define ALIGN_BLOCK(sz) ((sz + 0x10) & ~0xF)
+#endif
+
+#ifndef IS_NOT_ALIGNED
+#define IS_NOT_ALIGNED(sz, blk) (sz & ~-blk)
 #endif
 
 /////////////////////////////////////
@@ -74,6 +78,10 @@
 #else
 #undef AES_KEY_ROUND_SIZE
 #define AES_KEY_ROUND_SIZE 0x10
+#endif
+
+#ifndef AES_BLOCK_SIZE
+#define AES_BLOCK_SIZE 0x10
 #endif
 
 /////////////////////////////////////
@@ -223,10 +231,11 @@ struct s_aes_key_t
 
 struct s_aes_ctx_t
 {
-	aes_key_t		key;		/* Key & Key Scheduler 		*/
-	aes_key_size_t	key_size;	/* Size of the key			*/
-	aes_modes_t		mode;		/* Mode used in the context */
-    iv_t            iv;         /* Initialize vector        */
+	aes_key_t		key;		/* Key & Key Scheduler 					  */
+	aes_key_size_t	key_size;	/* Size of the key						  */
+	aes_modes_t		mode;		/* Mode used in the context 			  */
+    iv_t            iv;         /* Initialize vector        			  */
+	bool_t			pad;		/* Enable Padding check (Only on ECB/CBC) */
 };
 
 struct s_aes_buf_t
@@ -403,6 +412,18 @@ aes_status_t		aes_192_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict i
 aes_status_t		aes_256_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 aes_status_t		aes_256_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 
+
+/////////////////////////////////////
+//
+//
+//	  		AES-CBC
+//	  Cipher Block Chaining (CBC)
+//
+//
+////////////////////////////////////
+
+aes_status_t		aes_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 
 /////////////////////////////////////
 //

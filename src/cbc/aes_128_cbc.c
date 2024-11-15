@@ -71,6 +71,9 @@ aes_status_t	aes_128_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *re
 	if (!ctx || !out || !in || (o_sz < i_sz) || ctx->key_size != AES_KEY_128)
 		return (AES_ERR);
 
+	if (ctx->pad && IS_NOT_ALIGNED(i_sz, AES_BLOCK_SIZE))
+		return (AES_ERR_BLOCK_PAD);
+
 	__m128i state = _mm_setzero_si128(), feedback = _mm_setzero_si128();
 
 	size_t i = 0, j = 0;
@@ -121,6 +124,9 @@ aes_status_t	aes_128_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *re
 {
 	if (!ctx || !out || !in || (o_sz < i_sz) || ctx->key_size != AES_KEY_128)
 		return (AES_ERR);
+
+	if (ctx->pad && IS_NOT_ALIGNED(i_sz, AES_BLOCK_SIZE))
+		return (AES_ERR_BLOCK_PAD);
 
 	__m128i state = _mm_setzero_si128();
     __m128i feedback = _mm_setzero_si128();
