@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes.h                                              :+:      :+:    :+:   */
+/*   aes.h                                        |    |  |   |   |     |_    */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/12 22:00:48 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/15 14:57:32 by stales              1993-2024            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -226,6 +226,7 @@ struct s_aes_ctx_t
 	aes_key_t		key;		/* Key & Key Scheduler 		*/
 	aes_key_size_t	key_size;	/* Size of the key			*/
 	aes_modes_t		mode;		/* Mode used in the context */
+    iv_t            iv;         /* Initialize vector        */
 };
 
 struct s_aes_buf_t
@@ -401,6 +402,43 @@ aes_status_t		aes_192_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict i
 
 aes_status_t		aes_256_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 aes_status_t		aes_256_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+
+
+/////////////////////////////////////
+//
+//
+//	  		AES-128-CBC 
+//	  Cipher Block Chaining (CBC)
+//
+//
+////////////////////////////////////
+
+aes_status_t		aes_128_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_128_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+
+/////////////////////////////////////
+//
+//
+//	  		AES-192-CBC 
+//	  Cipher Block Chaining (CBC)
+//
+//
+////////////////////////////////////
+
+aes_status_t		aes_192_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_192_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+
+/////////////////////////////////////
+//
+//
+//	  		AES-256-CBC 
+//	  Cipher Block Chaining (CBC)
+//
+//
+////////////////////////////////////
+
+aes_status_t		aes_256_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_256_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 
 /////////////////////////////////////
 //
