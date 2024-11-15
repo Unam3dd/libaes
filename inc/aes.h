@@ -6,14 +6,13 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/15 14:57:32 by stales              1993-2024            */
+/*   Updated: 2024/11/15 17:06:59 by stales              1993-2024            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef AES_H
 #define AES_H
 
-#include <sys/cdefs.h>
 #if !defined (__x86_64__)
 #error "This library can be used only on x86 architecture because is used AES-NI instruction set !"
 #endif
@@ -170,8 +169,9 @@ typedef enum e_aes_modes_t
 
 typedef enum e_aes_status_t
 {
-	AES_OK,		/*  Ok  */
-	AES_ERR		/* Error */
+	AES_OK,		         /*  Ok  */
+	AES_ERR,            /* Error */
+    AES_ERR_BLOCK_PAD   /* Error Input/Output buffer is not aligned on a AES Block size */
 } aes_status_t;
 
 typedef enum e_bool_t

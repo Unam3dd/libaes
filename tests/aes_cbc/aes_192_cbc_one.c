@@ -32,29 +32,30 @@ int main(void)
 {
 	aes_ctx_t ctx;
 	
-	uint8_t in[0x20];
-	uint8_t out[0x20];
+	uint8_t in[0x40];
+	uint8_t out[0x40];
 
 	memset(in, 0, sizeof(in));
 	memset(out, 0, sizeof(out));
 	memset(&ctx, 0, sizeof(ctx));
 
-	ctx.key_size = AES_KEY_256;
-	ctx.mode = AES_256_ECB;
+	ctx.key_size = AES_KEY_192;
+	ctx.mode = AES_192_CBC;
 
 	strncpy((char *)in, "hello world !!!!", sizeof(in));
 
 	printf("Input buffer = ");
 	print_hex(in, sizeof(in));
 
-	memset(ctx.key.key_256, 'A', 0x20);
+	memset(ctx.key.key_192, 'A', 0x18);
+    memset(ctx.iv, 0x41, sizeof(ctx.iv));
 
-	printf("Original AES-256-ECB Key : ");
-	print_hex(ctx.key.key_256, sizeof(ctx.key.key_256));
+	printf("Original AES-192-CBC Key : ");
+	print_hex(ctx.key.key_192, sizeof(ctx.key.key_192));
 
-	aes_256_key_expansion(&ctx.key);
+	aes_192_key_expansion(&ctx.key);
 
-	aes_256_ecb_enc(out, sizeof(out), in, sizeof(in), &ctx);
+	aes_192_cbc_enc(out, sizeof(out), ctx.iv, in, strlen((char *)in), &ctx);
 
 	printf("Output buffer after encryption = ");
 	print_hex(out, sizeof(out));
@@ -63,7 +64,7 @@ int main(void)
 
 	memset(out, 0, sizeof(out));
 
-	aes_256_ecb_dec(out, sizeof(out), in, sizeof(in), &ctx);
+	aes_192_cbc_dec(out, sizeof(out), ctx.iv, in, sizeof(in), &ctx);
 
 	printf("Output buffer after decryption = ");
 	print_hex(out, sizeof(out));
