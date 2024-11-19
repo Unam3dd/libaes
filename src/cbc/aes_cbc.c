@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_cbc.c                                          :+:      :+:    :+:   */
+/*   aes_cbc.c                                    |    |  |   |   |     |_    */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/15 18:26:15 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/19 14:34:15 by stales              1993-2024            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,7 @@ aes_status_t	aes_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 
 	__m128i state = _mm_setzero_si128();
 	__m128i feedback = _mm_setzero_si128();
+    __m128i last_in = _mm_setzero_si128();
 	size_t i = 0, j = 0;
 
 	size_t NR = (ctx->key_size == AES_KEY_128
@@ -165,9 +166,9 @@ aes_status_t	aes_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 
 	for (i = 0; i < blocks; i++) {
 		
-		state = _mm_loadu_si128( &((__m128i*)in)[i]);
+		last_in = _mm_loadu_si128( &((__m128i*)in)[i]);
 
-        state = AddRoundKey(state, ctx->key.sched[NR]);
+        state = AddRoundKey(last_in, ctx->key.sched[NR]);
 
         for (j = ~-NR; j > 0; j--) {
 
@@ -180,9 +181,10 @@ aes_status_t	aes_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 		}
         
         state = _mm_aesdeclast_si128(state, ctx->key.sched[0]);
-		feedback = _mm_xor_si128(state, feedback);
+		state = _mm_xor_si128(state, feedback);
 
-		_mm_storeu_si128(&((__m128i*)out)[i], feedback);
+		_mm_storeu_si128(&((__m128i*)out)[i], state);
+        feedback = last_in;
 	}
 
 	return (AES_OK);

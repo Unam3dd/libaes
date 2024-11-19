@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_128_cbc.c                                      :+:      :+:    :+:   */
+/*   aes_128_cbc.c                                |    |  |   |   |     |_    */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 18:27:49 by stales            #+#    #+#             */
-/*   Updated: 2024/11/15 18:27:50 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/19 14:55:49 by stales              1993-2024            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@
 
 #include "aes.h"
 
+#include <stdio.h>
 #include <emmintrin.h>
 #include <wmmintrin.h>
 
@@ -141,15 +142,18 @@ aes_status_t	aes_128_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *re
 
 	__m128i state = _mm_setzero_si128();
     __m128i feedback = _mm_setzero_si128();
+    __m128i last_in = _mm_setzero_si128();
+
 	size_t i = 0, j = 0;
 	size_t blocks = (i_sz & 0xF ?  -~(i_sz >> 0x4) : (i_sz >> 0x4));
 
     feedback = _mm_loadu_si128((__m128i*)iv);
 
 	for (i = 0; i < blocks; i++) {
-		state = _mm_loadu_si128( &((__m128i*)in)[i]);
+		
+        last_in = _mm_loadu_si128( &((__m128i*)in)[i]);
 
-        state = AddRoundKey(state, ctx->key.sched_128[AES_128_NR]);
+        state = AddRoundKey(last_in, ctx->key.sched_128[AES_128_NR]);
 
         for (j = ~-AES_128_NR; j > 0; j--) {
 
@@ -165,9 +169,11 @@ aes_status_t	aes_128_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *re
 
         // Xoring state with IV for the first round.
         // The current feedback will be xored with the next decrypted block
-        feedback = _mm_xor_si128(state, feedback);
+        state = _mm_xor_si128(state, feedback);
 		
-        _mm_storeu_si128(&((__m128i*)out)[i], feedback);
+        _mm_storeu_si128(&((__m128i*)out)[i], state);
+        
+        feedback = last_in;
 	}
 
 	return (AES_OK);
