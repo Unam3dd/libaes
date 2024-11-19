@@ -33,10 +33,9 @@ SRCS_RC = ['src/rc/rc.c']
 SRCS_PKCS = ['src/pkcs/pkcs.c']
 SRCS_EXPANSION = ['src/expansion/aes_128_expansion.c', 'src/expansion/aes_192_expansion.c', 'src/expansion/aes_256_expansion.c']
 SRCS_RANDOM = ['src/random/rdrnd.c', 'src/random/urandom.c']
-SRCS_AES_ECB = ['src/ecb/aes_128_ecb.c', 'src/ecb/aes_192_ecb.c', 'src/ecb/aes_256_ecb.c', 'src/ecb/aes_ecb.c']
-SRCS_AES_CBC = ['src/cbc/aes_128_cbc.c', 'src/cbc/aes_192_cbc.c', 'src/cbc/aes_256_cbc.c', 'src/cbc/aes_cbc.c']
+SRCS_AES = ['src/ecb/aes_ecb.c', 'src/cbc/aes_cbc.c']
 
-SRCS = [SRCS_PKCS, SRCS_RC, SRCS_EXPANSION, SRCS_RANDOM, SRCS_AES_ECB, SRCS_AES_CBC]
+SRCS = [SRCS_PKCS, SRCS_RC, SRCS_EXPANSION, SRCS_RANDOM, SRCS_AES]
 SRCS_FILES = files(SRCS)
 
 #############################

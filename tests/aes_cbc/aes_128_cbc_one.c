@@ -32,6 +32,7 @@ int main(void)
 	aes_ctx_t ctx;
 	
 	uint8_t in[0x40];
+	uint8_t	cpy[0x40];
 	uint8_t out[0x40];
 
 	memset(in, 0, sizeof(in));
@@ -39,9 +40,9 @@ int main(void)
 	memset(&ctx, 0, sizeof(ctx));
 
 	ctx.key_size = AES_KEY_128;
-	ctx.mode = AES_128_CBC;
 
 	strncpy((char *)in, "hello world !!!!", sizeof(in));
+	strncpy((char *)cpy, (char *)in, sizeof(cpy));
 	
     pkcs_status_t status = PKCS_OK;
 
@@ -64,7 +65,7 @@ int main(void)
 
 	aes_128_key_expansion(&ctx.key);
 
-	aes_128_cbc_enc(out, sizeof(out), ctx.iv, in, 0x20, &ctx);
+	aes_cbc_enc(out, sizeof(out), ctx.iv, in, sizeof(in), &ctx);
 
 	printf("Output buffer after encryption = ");
 	print_hex(out, sizeof(out));
@@ -73,18 +74,21 @@ int main(void)
 
 	memset(out, 0, sizeof(out));
 
-	aes_128_cbc_dec(out, sizeof(out), ctx.iv, in, sizeof(in), &ctx);
+	aes_cbc_dec(out, sizeof(out), ctx.iv, in, sizeof(in), &ctx);
 
 	printf("Output buffer after decryption = ");
 	print_hex(out, sizeof(out));
 
-	if ((status = pkcs_unpad(out, sizeof(out), 0x20, 0x10)) != PKCS_OK) {
+	if ((status = pkcs_unpad(out, sizeof(out), sizeof(out), 0x10)) != PKCS_OK) {
 		fprintf(stderr, "Error: pkcs_unpad() = %d\n", status);
 		return (1);
 	}
 
 	printf("Output buffer after unpad = ");
 	print_hex(out, sizeof(out));
+
+	if (memcmp(cpy, out, sizeof(out)))
+		return (1);
 
 	return (0);
 }

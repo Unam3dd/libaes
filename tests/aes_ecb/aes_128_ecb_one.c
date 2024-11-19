@@ -34,6 +34,7 @@ int main(void)
 	aes_ctx_t ctx;
 	
 	uint8_t in[0x40];
+	uint8_t cpy[0x40];
 	uint8_t out[0x40];
 
 	memset(in, 0, sizeof(in));
@@ -41,9 +42,9 @@ int main(void)
 	memset(&ctx, 0, sizeof(ctx));
 
 	ctx.key_size = AES_KEY_128;
-	ctx.mode = AES_128_ECB;
 
 	strncpy((char *)in, "hello world !!!!", sizeof(in));
+	strncpy((char *)cpy, (char *)in, sizeof(cpy));
 
 	pkcs_status_t status = PKCS_OK;
 
@@ -62,7 +63,7 @@ int main(void)
 
 	aes_128_key_expansion(&ctx.key);
 
-	aes_128_ecb_enc(out, sizeof(out), in, sizeof(in), &ctx);
+	aes_ecb_enc(out, sizeof(out), in, sizeof(in), &ctx);
 
 	printf("Output buffer after encryption = ");
 	print_hex(out, sizeof(out));
@@ -71,7 +72,7 @@ int main(void)
 
 	memset(out, 0, sizeof(out));
 
-	aes_128_ecb_dec(out, sizeof(out), in, sizeof(in), &ctx);
+	aes_ecb_dec(out, sizeof(out), in, sizeof(in), &ctx);
 
 	printf("Output buffer after decryption = ");
 	print_hex(out, sizeof(out));
@@ -83,6 +84,9 @@ int main(void)
 
 	printf("Output buffer after unpad = ");
 	print_hex(out, sizeof(out));
+
+	if (memcmp(out, cpy, sizeof(out)))
+		return (1);
 
 	return (0);
 }

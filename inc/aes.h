@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/15 18:23:32 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/20 00:23:57 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,31 +150,6 @@ typedef enum e_aes_key_size_t
 	AES_KEY_256 = 0x20,		// 256 bits (32 bytes)
 } aes_key_size_t;
 
-typedef enum e_aes_modes_t
-{
-	AES_128_ECB,		/* Electronic Code Books */
-	AES_192_ECB,		/* Electronic Code Books */
-	AES_256_ECB,		/* Electronic Code Books */
-	AES_128_CBC,		/* Cipher Block Chaining */
-	AES_192_CBC,		/* Cipher Block Chaining */
-	AES_256_CBC,		/* Cipher Block Chaining */
-	AES_128_CFB,		/* Cipher Feedback 		 */
-	AES_192_CFB,		/* Cipher Feedback 		 */
-	AES_256_CFB,		/* Cipher Feedback 		 */
-	AES_128_OFB,		/* Output Feedback		 */
-	AES_192_OFB,		/* Output Feedback		 */
-	AES_256_OFB,		/* Output Feedback		 */
-	AES_128_CTR,		/* Counter Mode			 */
-	AES_192_CTR,		/* Counter Mode			 */
-	AES_256_CTR,		/* Counter Mode			 */
-	AES_128_CTS,		/* CipherText Stealing	 */
-	AES_192_CTS,		/* CipherText Stealing	 */
-	AES_256_CTS,		/* CipherText Stealing	 */
-	AES_128_GCM,		/* Galois Counter Mode	 */
-	AES_192_GCM,		/* Galois Counter Mode	 */
-	AES_256_GCM,		/* Galois Counter Mode	 */
-} aes_modes_t;
-
 typedef enum e_aes_status_t
 {
 	AES_OK,		         /*  Ok  */
@@ -233,7 +208,6 @@ struct s_aes_ctx_t
 {
 	aes_key_t		key;		/* Key & Key Scheduler 					  */
 	aes_key_size_t	key_size;	/* Size of the key						  */
-	aes_modes_t		mode;		/* Mode used in the context 			  */
     iv_t            iv;         /* Initialize vector        			  */
 	bool_t			pad;		/* Enable Padding check (Only on ECB/CBC) */
 };
@@ -376,42 +350,6 @@ aes_status_t		aes_256_key_expansion(const aes_key_t *k);
 aes_status_t		aes_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 aes_status_t		aes_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 
-/////////////////////////////////////
-//
-//
-//	  		AES-128-ECB 
-//	  Electronic Code Books (ECB)
-//
-//
-////////////////////////////////////
-
-aes_status_t		aes_128_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-aes_status_t		aes_128_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-
-/////////////////////////////////////
-//
-//
-//	  		AES-192-ECB 
-//	  Electronic Code Books (ECB)
-//
-//
-////////////////////////////////////
-
-aes_status_t		aes_192_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-aes_status_t		aes_192_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-
-/////////////////////////////////////
-//
-//
-//	  		AES-256-ECB 
-//	  Electronic Code Books (ECB)
-//
-//
-////////////////////////////////////
-
-aes_status_t		aes_256_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-aes_status_t		aes_256_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-
 
 /////////////////////////////////////
 //
@@ -424,42 +362,6 @@ aes_status_t		aes_256_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict i
 
 aes_status_t		aes_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 aes_status_t		aes_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-
-/////////////////////////////////////
-//
-//
-//	  		AES-128-CBC 
-//	  Cipher Block Chaining (CBC)
-//
-//
-////////////////////////////////////
-
-aes_status_t		aes_128_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-aes_status_t		aes_128_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-
-/////////////////////////////////////
-//
-//
-//	  		AES-192-CBC 
-//	  Cipher Block Chaining (CBC)
-//
-//
-////////////////////////////////////
-
-aes_status_t		aes_192_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-aes_status_t		aes_192_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-
-/////////////////////////////////////
-//
-//
-//	  		AES-256-CBC 
-//	  Cipher Block Chaining (CBC)
-//
-//
-////////////////////////////////////
-
-aes_status_t		aes_256_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-aes_status_t		aes_256_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 
 /////////////////////////////////////
 //

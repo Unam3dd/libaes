@@ -33,6 +33,7 @@ int main(void)
 	aes_ctx_t ctx;
 	
 	uint8_t in[0x20];
+	uint8_t cpy[0x20];
 	uint8_t out[0x20];
 
 	memset(in, 0, sizeof(in));
@@ -40,9 +41,9 @@ int main(void)
 	memset(&ctx, 0, sizeof(ctx));
 
 	ctx.key_size = AES_KEY_192;
-	ctx.mode = AES_192_ECB;
 
 	strncpy((char *)in, "hello world !!!!", sizeof(in));
+	strncpy((char *)cpy, (char *)in, sizeof(cpy));
 
 	printf("Input buffer = ");
 	print_hex(in, sizeof(in));
@@ -54,7 +55,7 @@ int main(void)
 
 	aes_192_key_expansion(&ctx.key);
 
-	aes_192_ecb_enc(out, sizeof(out), in, sizeof(in), &ctx);
+	aes_ecb_enc(out, sizeof(out), in, sizeof(in), &ctx);
 
 	printf("Output buffer after encryption = ");
 	print_hex(out, sizeof(out));
@@ -63,10 +64,13 @@ int main(void)
 
 	memset(out, 0, sizeof(out));
 
-	aes_192_ecb_dec(out, sizeof(out), in, sizeof(in), &ctx);
+	aes_ecb_dec(out, sizeof(out), in, sizeof(in), &ctx);
 
 	printf("Output buffer after decryption = ");
 	print_hex(out, sizeof(out));
+
+	if (memcmp(out, cpy, sizeof(out)))
+		return (1);
 
 	return (0);
 }

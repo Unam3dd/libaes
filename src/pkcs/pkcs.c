@@ -6,11 +6,12 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 14:09:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/12 21:05:55 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/19 22:35:42 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pkcs.h"
+#include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 
@@ -106,6 +107,11 @@ pkcs_status_t	pkcs_unpad(uint8_t *buf, size_t buf_size, size_t size, uint8_t blk
 		return (PKCS_OK);
 
 	tmp = (uint8_t*)(buf + (size - 1));
+	pad = *tmp;
+
+	while (*tmp == 0)
+		tmp--;
+
 	pad = *tmp;
 
 	while (*tmp == pad)
