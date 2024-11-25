@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pkcs.c                                       |    |  |   |   |     |_    */
+/*   pkcs.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 14:09:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/25 18:44:00 by stales              1993-2024            */
+/*   Updated: 2024/11/25 20:24:32 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,8 @@ pkcs_status_t	pkcs_pad(uint8_t *buf, size_t buf_size, size_t size, uint8_t blk)
 	if (size > buf_size)
 		return (PKCS_ERR_INVALID_SIZE);
 
-    if (!PKCS_SHOULD_PAD(blk, size)) return (PKCS_OK);
+    if (!PKCS_SHOULD_PAD(blk, size))
+		return (PKCS_OK);
 
 	pad = PKCS_PAD_LEN(blk, size);
 
@@ -97,7 +98,6 @@ pkcs_status_t	pkcs_unpad(uint8_t *buf, size_t buf_size, size_t size, uint8_t blk
 	if (!buf)
 		return (PKCS_ERR_BUF_NULL);
 	
-	
     if (!size)
 		return (PKCS_OK);
 	
@@ -111,13 +111,11 @@ pkcs_status_t	pkcs_unpad(uint8_t *buf, size_t buf_size, size_t size, uint8_t blk
 		return (PKCS_ERR_INVALID_BLK_SIZE);
 
 	tmp = (uint8_t*)(buf + (size - 1));
-    
 
 	while (*tmp == 0)
 		tmp--;
 
 	pad = *tmp;
-
 
 	while (*tmp == pad)
 		*tmp-- = 0;

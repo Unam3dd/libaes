@@ -77,7 +77,7 @@ int main(void)
 	printf("Output buffer after decryption = ");
 	print_hex(out, sizeof(out));
 
-	if ((status = pkcs_unpad(out, sizeof(out), 0x20, 0x10)) != PKCS_OK) {
+	if ((status = pkcs_unpad(out, sizeof(out), strlen((char *)out), 0x10)) != PKCS_OK) {
 		fprintf(stderr, "Error: pkcs_unpad() = %d\n", status);
 		return (1);
 	}

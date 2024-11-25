@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pkcs.h                                       |    |  |   |   |     |_    */
+/*   pkcs.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 14:06:01 by stales            #+#    #+#             */
-/*   Updated: 2024/11/25 18:18:59 by stales              1993-2024            */
+/*   Updated: 2024/11/25 20:30:05 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,22 @@ typedef enum e_pkcs_status_t
 	PKCS_ERR_INVALID_BLK_SIZE,
 	PKCS_ERR_BUFF_SIZE_ZERO
 } pkcs_status_t;
+
+/////////////////////////////////////
+//
+//
+//			STRUCT
+//
+//
+////////////////////////////////////
+
+typedef struct pkcs_buf_t
+{
+	const uint8_t	*buf;
+	size_t			len;
+	size_t			block;
+	size_t			pad_size;
+} pkcs_buf_t;
 
 pkcs_status_t	pkcs_pad(uint8_t *buf, size_t buf_size, size_t size, uint8_t blk);
 pkcs_status_t	pkcs_unpad(uint8_t *buf, size_t buf_size, size_t size, uint8_t blk);

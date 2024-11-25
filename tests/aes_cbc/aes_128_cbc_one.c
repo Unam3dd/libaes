@@ -29,6 +29,18 @@ static void	print_hex(const uint8_t *buf, size_t size)
 	putchar('\n');
 }
 
+static size_t len_bytes(const uint8_t *bytes)
+{
+	if (!bytes) return (0);
+
+	uint8_t *tmp = (uint8_t *)bytes;
+	
+	while (*tmp)
+		tmp++;
+	
+	return (tmp - bytes);
+}
+
 int main(void)
 {
 	aes_ctx_t ctx;
@@ -81,7 +93,9 @@ int main(void)
 	printf("Output buffer after decryption = ");
 	print_hex(out, sizeof(out));
 
-	if ((status = pkcs_unpad(out, sizeof(out), sizeof(out), 0x10)) != PKCS_OK) {
+	printf("%zd\n", len_bytes(out));
+
+	if ((status = pkcs_unpad(out, sizeof(out), len_bytes(out), 0x10)) != PKCS_OK) {
 		fprintf(stderr, "Error: pkcs_unpad() = %d\n", status);
 		return (1);
 	}
