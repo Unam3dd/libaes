@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_128_expansion.c                                :+:      :+:    :+:   */
+/*   aes_128_expansion.c                          |    |  |   |   |     |_    */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:11:52 by stales            #+#    #+#             */
-/*   Updated: 2024/11/12 21:36:23 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/25 16:49:25 by stales              1993-2024            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@
 * 						Otherwise AES ERR is Returned.
 */
 
-__attribute__((optimize("O0")))
 aes_status_t	aes_128_key_expansion(const aes_key_t *k)
 {
 	if (!k) return (AES_ERR);

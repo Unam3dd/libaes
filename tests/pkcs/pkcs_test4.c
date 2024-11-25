@@ -5,7 +5,7 @@
 
 int main(void)
 {
-	uint8_t	buf[] = "passwordpassword";
+	uint8_t	buf[] = "passwordpassworda";
 	uint8_t	cmp[0x40];
 	size_t	sz = 0;
 	uint8_t	pad = 0;
@@ -14,11 +14,11 @@ int main(void)
 
 	memset(cmp, 0, sizeof(cmp));
 	
-	pad = PKCS_PAD_LEN(16, sz);
+	pad = PKCS_PAD_LEN(0x10, sz);
 	
 	memset(cmp, pad, pad*sizeof(uint8_t));
 
-	pkcs_status_t status = pkcs_pad(buf, sizeof(buf), sz, 16);
+	pkcs_status_t status = pkcs_pad(buf, sizeof(buf), sz, 0x10);
 
 	return (status == PKCS_ERR_BUF_TOO_SMALL ? 0 : 1);
 }

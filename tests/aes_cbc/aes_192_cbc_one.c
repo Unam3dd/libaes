@@ -56,7 +56,11 @@ int main(void)
 
 	aes_192_key_expansion(&ctx.key);
 
+    __asm__ volatile("# LLVM-MCA-BEGIN foo":::"memory");
+
 	aes_cbc_enc(out, sizeof(out), ctx.iv, in, sizeof(in), &ctx);
+
+    __asm__ volatile("# LLVM-MCA-END":::"memory");
 
 	printf("Output buffer after encryption = ");
 	print_hex(out, sizeof(out));

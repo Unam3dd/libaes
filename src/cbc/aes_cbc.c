@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_cbc.c                                          :+:      :+:    :+:   */
+/*   aes_cbc.c                                    |    |  |   |   |     |_    */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/20 00:19:04 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/25 17:52:34 by stales              1993-2024            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,8 @@
 #include <emmintrin.h>
 #include <wmmintrin.h>
 
+#include <stdio.h>
+
 /////////////////////////////////////
 //
 //
@@ -118,21 +120,60 @@ aes_status_t	aes_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 
 		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
 		feedback = AddRoundKey(feedback, ctx->key.sched[0]);
-		
-		for (j = 1; j < NR; j++) {
+
+        j = 1;
+
+        while (j < NR) {
 
 			//      a[127:0] := ShiftRows(a[127:0])
 			//      a[127:0] := SubBytes(a[127:0])
 			//      a[127:0] := MixColumns(a[127:0])
 			//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
-	
-			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j]);
-		}
+            //      Unroll loop
+			
+            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
 
-		//      a[127:0] := ShiftRows(a[127:0])
+            if ((j & NR) == NR)
+                break ;
+
+            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+
+            if ((j & NR) == NR)
+                break ;
+            
+            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+
+            if ((j & NR) == NR)
+                break ;
+
+            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+
+            if ((j & NR) == NR)
+                break ;
+
+            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+
+            if ((j & NR) == NR)
+                break ;
+            
+            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+
+            if ((j & NR) == NR)
+                break ;
+            
+            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+
+            if ((j & NR) == NR)
+                break ;
+
+            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+        }
+		
+        //      a[127:0] := ShiftRows(a[127:0])
 		//      a[127:0] := SubBytes(a[127:0])
 		//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
-		feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[j]);
+		
+        feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[j]);
 
 		_mm_storeu_si128(&((__m128i*)out)[i], feedback);
 	}

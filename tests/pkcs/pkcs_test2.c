@@ -13,6 +13,8 @@ int main(void)
 	memset(cmp, 0, sizeof(cmp));
 	
 	uint8_t	pad = PKCS_PAD_LEN(16, sz);
+
+    printf("%x\n", pad);
 	
 	memset(cmp, pad, pad);
 

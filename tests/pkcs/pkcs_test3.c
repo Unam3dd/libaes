@@ -5,7 +5,7 @@
 
 int main(void)
 {
-	uint8_t	buf[0x40] = "passwordpassword";
+	uint8_t	buf[0x40] = "passwordpassworda";
 	uint8_t	cmp[0x40];
 	size_t	sz = 0;
 	uint8_t	pad = 0;
@@ -21,13 +21,10 @@ int main(void)
 	if (pkcs_pad(buf, sizeof(buf), sz, 16) != PKCS_OK)
 		return (1);
 
-	if (memcmp((char *)(buf+sz), cmp, pad))
+	if (pkcs_unpad(buf, sizeof(buf), strlen((char *)buf)+pad, 16) != PKCS_OK)
 		return (1);
 
-	if (pkcs_unpad(buf, sizeof(buf), strlen((char *)buf), 16) != PKCS_OK)
-		return (1);
-
-	if (memcmp((char *)buf, "passwordpassword", sizeof("passwordpassword")))
+	if (memcmp((char *)buf, "passwordpassworda", sizeof("passwordpassworda")))
 		return (1);
 
 	return (0);

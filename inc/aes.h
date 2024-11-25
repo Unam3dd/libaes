@@ -1,18 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes.h                                              :+:      :+:    :+:   */
+/*   aes.h                                        |    |  |   |   |     |_    */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/20 00:23:57 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/25 16:48:18 by stales              1993-2024            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef AES_H
 #define AES_H
 
+#include <sys/cdefs.h>
 #if !defined (__x86_64__)
 #error "This library can be used only on x86 architecture because is used AES-NI instruction set !"
 #endif
@@ -275,7 +276,11 @@ struct s_aes_buf_t
 * @return bool_t	return TRUE or FALSE depending on the CPU.
 */
 
+#if !defined(__clang__)
 __attribute__((optimize("O0"), __always_inline__))
+#elif defined(__clang__)
+__attribute__((__always_inline__))
+#endif
 static inline bool_t	check_cpuid_support_aes(void)
 {
 	uint32_t		ecx = 0;

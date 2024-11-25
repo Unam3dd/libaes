@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+#include <unistd.h>
 
 static void	print_hex(const uint8_t *buf, size_t size)
 {

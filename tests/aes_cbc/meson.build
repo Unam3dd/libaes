@@ -4,7 +4,7 @@
 #
 #############################
 
-AES_CBC_TEST_SRCS = ['aes_128_cbc_one', 'aes_192_cbc_one', 'aes_256_cbc_one', 'aes_128_cbc_two', 'aes_cbc_one']
+AES_CBC_TEST_SRCS = ['aes_128_cbc_one', 'aes_192_cbc_one', 'aes_256_cbc_one', 'aes_128_cbc_two', 'aes_cbc_one', 'aes_128_cbc_random']
 
 foreach AES_CBC_TEST: AES_CBC_TEST_SRCS
   AES_CBC_TEST_EXE = executable(AES_CBC_TEST + '.out',

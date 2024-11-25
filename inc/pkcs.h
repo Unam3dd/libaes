@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pkcs.h                                             :+:      :+:    :+:   */
+/*   pkcs.h                                       |    |  |   |   |     |_    */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 14:06:01 by stales            #+#    #+#             */
-/*   Updated: 2024/10/19 20:12:37 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/25 18:18:59 by stales              1993-2024            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,12 @@
 //
 ////////////////////////////////////
 
+#ifndef PKCS_SHOULD_PAD
+#define PKCS_SHOULD_PAD(blk, size) (size & ~-blk)
+#endif
+
 #ifndef PKCS_PAD_LEN
-#define PKCS_PAD_LEN(blk, size) (blk - (size & ~-blk))
+#define PKCS_PAD_LEN(blk, size) (PKCS_SHOULD_PAD(blk, size) ? (blk - (size & ~-blk)) : 0)
 #endif
 
 /////////////////////////////////////

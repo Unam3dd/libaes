@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pkcs.c                                             :+:      :+:    :+:   */
+/*   pkcs.c                                       |    |  |   |   |     |_    */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 14:09:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/19 22:35:42 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/25 18:44:00 by stales              1993-2024            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,8 @@ pkcs_status_t	pkcs_pad(uint8_t *buf, size_t buf_size, size_t size, uint8_t blk)
 	if (size > buf_size)
 		return (PKCS_ERR_INVALID_SIZE);
 
+    if (!PKCS_SHOULD_PAD(blk, size)) return (PKCS_OK);
+
 	pad = PKCS_PAD_LEN(blk, size);
 
 	if ((size_t)(size + pad) > buf_size)
@@ -90,11 +92,16 @@ pkcs_status_t	pkcs_unpad(uint8_t *buf, size_t buf_size, size_t size, uint8_t blk
 {
 	uint8_t	*tmp = NULL;
 	uint8_t pad = 0;
+    
 
 	if (!buf)
 		return (PKCS_ERR_BUF_NULL);
 	
-	if (!buf_size)
+	
+    if (!size)
+		return (PKCS_OK);
+	
+    if (!buf_size)
 		return (PKCS_ERR_INVALID_SIZE);
 
 	if (size > buf_size)
@@ -103,16 +110,14 @@ pkcs_status_t	pkcs_unpad(uint8_t *buf, size_t buf_size, size_t size, uint8_t blk
 	if (!blk || (size & ~-blk))
 		return (PKCS_ERR_INVALID_BLK_SIZE);
 
-	if (!size)
-		return (PKCS_OK);
-
 	tmp = (uint8_t*)(buf + (size - 1));
-	pad = *tmp;
+    
 
 	while (*tmp == 0)
 		tmp--;
 
 	pad = *tmp;
+
 
 	while (*tmp == pad)
 		*tmp-- = 0;
