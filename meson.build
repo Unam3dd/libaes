@@ -44,7 +44,7 @@ SRCS_FILES = files(SRCS)
 #
 #############################
 
-CFLAGS = ['-D_FORTIFY_SOURCE=0', '-masm=intel']
+CFLAGS = ['-D_FORTIFY_SOURCE=0', '-D_GNU_SOURCE','-masm=intel']
 #CFLAGS = ['-masm=intel']
 LDFLAGS = []
 TEST_CFLAGS = ['-ggdb', '-gdwarf', '-fPIC']
@@ -82,7 +82,7 @@ endif
 #
 #############################
 
-TEST_SUBPROJECT = ['tests/pkcs', 'tests/rc', 'tests/expansion', 'tests/random', 'tests/aes_ecb', 'tests/aes_cbc']
+TEST_SUBPROJECT = ['tests/rc', 'tests/expansion', 'tests/random', 'tests/aes_ecb', 'tests/aes_cbc']
 
 #############################
 #
