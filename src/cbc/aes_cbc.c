@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_cbc.c                                    |    |  |   |   |     |_    */
+/*   aes_cbc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/25 17:52:34 by stales              1993-2024            */
+/*   Updated: 2024/11/26 23:09:34 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,8 +77,6 @@
 #include <emmintrin.h>
 #include <wmmintrin.h>
 
-#include <stdio.h>
-
 /////////////////////////////////////
 //
 //
@@ -124,54 +122,41 @@ aes_status_t	aes_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
         j = 1;
 
         while (j < NR) {
-
-			//      a[127:0] := ShiftRows(a[127:0])
-			//      a[127:0] := SubBytes(a[127:0])
-			//      a[127:0] := MixColumns(a[127:0])
-			//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
-            //      Unroll loop
 			
             feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
 
-            if ((j & NR) == NR)
-                break ;
+            if ((j & NR) == NR) break ;
 
             feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
 
-            if ((j & NR) == NR)
-                break ;
+            if ((j & NR) == NR) break ;
             
             feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
 
-            if ((j & NR) == NR)
-                break ;
+            if ((j & NR) == NR) break ;
 
             feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-
-            if ((j & NR) == NR)
-                break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-
-            if ((j & NR) == NR)
-                break ;
             
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+			if ((j & NR) == NR) break ;
 
-            if ((j & NR) == NR)
-                break ;
+            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
             
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+			if ((j & NR) == NR) break ;
 
-            if ((j & NR) == NR)
-                break ;
+            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+            
+			if ((j & NR) == NR) break ;
+
+            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+            
+			if ((j & NR) == NR) break ;
+
+            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+            
+			if ((j & NR) == NR) break ;
 
             feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
         }
-		
-        //      a[127:0] := ShiftRows(a[127:0])
-		//      a[127:0] := SubBytes(a[127:0])
-		//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
 		
         feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[j]);
 
@@ -211,14 +196,43 @@ aes_status_t	aes_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 
         state = AddRoundKey(last_in, ctx->key.sched[NR]);
 
-        for (j = ~-NR; j > 0; j--) {
+		j = ~-NR;
 
-			//      a[127:0] := ShiftRows(a[127:0])
-			//      a[127:0] := SubBytes(a[127:0])
-			//      a[127:0] := MixColumns(a[127:0])
-			//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
+		while (j > 0) {
 
-            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j]));
+			state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+
+			if (!j) break;
+
+			state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+			
+			if (!j) break;
+
+			state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+			
+			if (!j) break;
+
+			state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+			
+			if (!j) break;
+
+			state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+			
+			if (!j) break;
+
+			state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+			
+			if (!j) break;
+
+			state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+			
+			if (!j) break;
+
+			state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+			
+			if (!j) break;
+
+			state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
 		}
         
         state = _mm_aesdeclast_si128(state, ctx->key.sched[0]);

@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 14:09:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/26 20:57:42 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/26 21:33:20 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,5 @@ pkcs_status_t	pkcs_unpad(uint8_t *buf, size_t size, size_t block)
 
 	memset((uint8_t *)(ptr - *ptr) + 1, 0, *ptr);
 
-	return ((uint64_t)(((ptr - *ptr) + 1) - buf) == (block - *ptr) 
-			? PKCS_OK 
-			: PKCS_ERR_INVALID_BLK_SIZE);
+	return (PKCS_OK);
 }

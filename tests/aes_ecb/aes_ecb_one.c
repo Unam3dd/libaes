@@ -48,7 +48,7 @@ int main(void)
 
 	pkcs_status_t status = PKCS_OK;
 
-	if ((status = pkcs_pad(in, sizeof(in), strlen((char *)in), 0x10)) != PKCS_OK) {
+	if ((status = pkcs_pad(in, sizeof(in), 0x10)) != PKCS_OK) {
 		fprintf(stderr, "Error: pkcs_pad() = %d\n", status);
 		return (1);
 	}
@@ -77,7 +77,7 @@ int main(void)
 	printf("Output buffer after decryption = ");
 	print_hex(out, sizeof(out));
 
-	if ((status = pkcs_unpad(out, sizeof(out), strlen((char *)out), 0x10)) != PKCS_OK) {
+	if ((status = pkcs_unpad(out, sizeof(out), 0x10)) != PKCS_OK) {
 		fprintf(stderr, "Error: pkcs_unpad() = %d\n", status);
 		return (1);
 	}

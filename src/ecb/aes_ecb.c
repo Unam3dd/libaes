@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/12 21:24:47 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/26 23:33:20 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,15 +110,49 @@ aes_status_t	aes_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, si
 
 		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
 		state = AddRoundKey(state, ctx->key.sched[0]);
-		
-		for (j = 1; j < NR; j++) {
+
+		j = 1;
+
+		while (j < NR) {
 
 			//      a[127:0] := ShiftRows(a[127:0])
 			//      a[127:0] := SubBytes(a[127:0])
 			//      a[127:0] := MixColumns(a[127:0])
 			//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
-	
-			state = _mm_aesenc_si128(state, ctx->key.sched[j]);
+			
+			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
+
+			if ((j & NR) == NR) break;
+
+			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
+
+			if ((j & NR) == NR) break;
+
+			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
+
+			if ((j & NR) == NR) break;
+
+			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
+
+			if ((j & NR) == NR) break;
+
+			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
+
+			if ((j & NR) == NR) break;
+
+			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
+
+			if ((j & NR) == NR) break;
+
+			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
+
+			if ((j & NR) == NR) break;
+
+			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
+
+			if ((j & NR) == NR) break;
+
+			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
 		}
 
 		//      a[127:0] := ShiftRows(a[127:0])
@@ -154,14 +188,42 @@ aes_status_t	aes_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, si
 
         state = AddRoundKey(state, ctx->key.sched[NR]);
 
-        for (j = ~-NR; j > 0; j--) {
+		j = ~-NR;
 
-			//      a[127:0] := ShiftRows(a[127:0])
-			//      a[127:0] := SubBytes(a[127:0])
-			//      a[127:0] := MixColumns(a[127:0])
-			//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
+		while (j > 0) {
+            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
 
-            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j]));
+			if (!j) break ;
+
+            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+
+			if (!j) break ;
+
+            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+
+			if (!j) break ;
+
+            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+
+			if (!j) break ;
+
+            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+
+			if (!j) break ;
+
+            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+
+			if (!j) break ;
+
+            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+
+			if (!j) break ;
+
+            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+
+			if (!j) break ;
+
+            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
 		}
         
         state = _mm_aesdeclast_si128(state, ctx->key.sched[0]);

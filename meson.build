@@ -82,7 +82,7 @@ endif
 #
 #############################
 
-TEST_SUBPROJECT = ['tests/rc', 'tests/expansion', 'tests/random', 'tests/aes_ecb', 'tests/aes_cbc']
+TEST_SUBPROJECT = ['tests/rc', 'tests/expansion', 'tests/random', 'tests/aes_ecb', 'tests/aes_cbc', 'tests/pkcs']
 
 #############################
 #

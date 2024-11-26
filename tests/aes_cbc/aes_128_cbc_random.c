@@ -36,7 +36,7 @@ int main(void)
 	
     pkcs_status_t status = PKCS_OK;
 
-	if ((status = pkcs_pad(in, 0x1000, 0x1000, 0x10)) != PKCS_OK) {
+	if ((status = pkcs_pad(in, 0x1000, 0x10)) != PKCS_OK) {
         free(in);
         free(out);
 		fprintf(stderr, "Error: pkcs_pad() = %d\n", status);

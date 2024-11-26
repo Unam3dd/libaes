@@ -35,8 +35,6 @@ int main(void)
 	uint8_t cpy[0x100];
 	uint8_t out[0x100];
 
-	size_t	len = 0;
-
 	memset(in, 0, sizeof(in));
 	memset(out, 0, sizeof(out));
 	memset(&ctx, 0, sizeof(ctx));
@@ -46,12 +44,10 @@ int main(void)
 	strncpy((char *)in, "hello world this is a simple very simple basic message !!!!", sizeof(in));
 
 	strncpy((char *)cpy, (char *)in, sizeof(cpy));
-
-	len = strlen((char *)in);
 	
     pkcs_status_t status = PKCS_OK;
 
-	if ((status = pkcs_pad(in, sizeof(in), len, 0x10)) != PKCS_OK) {
+	if ((status = pkcs_pad(in, sizeof(in), 0x10)) != PKCS_OK) {
 		fprintf(stderr, "Error: pkcs_pad() = %d\n", status);
 		return (1);
 	}
@@ -84,7 +80,7 @@ int main(void)
 	printf("Output buffer after decryption = ");
 	print_hex(out, sizeof(out));
 
-	if ((status = pkcs_unpad(out, sizeof(out), strlen((char *)out), 0x10)) != PKCS_OK) {
+	if ((status = pkcs_unpad(out, sizeof(out), 0x10)) != PKCS_OK) {
 		fprintf(stderr, "Error: pkcs_unpad() = %d\n", status);
 		return (1);
 	}
