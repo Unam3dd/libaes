@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pkcs.h                                       |    |  |   |   |     |_    */
+/*   pkcs.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 14:06:01 by stales            #+#    #+#             */
-/*   Updated: 2024/11/26 17:00:30 by stales              1993-2024            */
+/*   Updated: 2024/11/26 19:47:41 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,24 +58,7 @@ typedef enum e_pkcs_status_t
 	PKCS_ERR_BUFF_SIZE_ZERO
 } pkcs_status_t;
 
-/////////////////////////////////////
-//
-//
-//			STRUCT
-//
-//
-////////////////////////////////////
-
-typedef struct pkcs_buf_t
-{
-	uint8_t         *buf;       /* pkcs buffer use to pad the data  */
-	size_t			size;       /* Size of the buffer               */
-    size_t          nb;         /* Number of non zero bytes         */
-	size_t			block;      /* Size of the block                */
-	size_t			pad_size;   /* Padding size                     */
-} pkcs_buf_t;
-
-pkcs_status_t	pkcs_pad(pkcs_buf_t *p);
-pkcs_status_t	pkcs_unpad(pkcs_buf_t *p);
+pkcs_status_t	pkcs_pad(uint8_t *buf, size_t size, size_t block);
+pkcs_status_t	pkcs_unpad(uint8_t *buf, size_t size, size_t block);
 
 #endif

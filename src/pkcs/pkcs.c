@@ -1,84 +1,94 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pkcs.c                                       |    |  |   |   |     |_    */
+/*   pkcs.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 14:09:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/26 17:58:21 by stales              1993-2024            */
+/*   Updated: 2024/11/26 20:57:42 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pkcs.h"
-#include <stdio.h>
 #include <stdint.h>
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
 #include <string.h>
 
-static size_t len_bytes(const uint8_t *bytes, size_t size)
-{
-    size_t i = 0;
+/**
+* @prototype pkcs_pad
+*
+* @brief  This function pad data following PKCS Padding 
+*
+*
+* @param[in] uint8_t:	buf	  	buffer.
+* @param[in] size_t:	size	size.
+* @param[in] size_t:	block	size of the block use to determine padding.
+*
+* @exemple: pkcs_pad(buf, sizeof(buf), 0x10)
+*
+* @return pkcs_status_t	return PKCS_OK if success. 
+* 		Otherwise is an error.
+*/
 
-    while (i < size && bytes[i])
-        i++;
-    return (i);
+pkcs_status_t	pkcs_pad(uint8_t *buf, size_t size, size_t block)
+{
+	size_t nb = 0;
+	size_t pad = 0;
+
+	if (!buf) return (PKCS_ERR_BUF_NULL);
+
+	if (!size) return (PKCS_ERR_INVALID_SIZE);
+
+	if (!block || block > size) return (PKCS_ERR_INVALID_BLK_SIZE);
+
+	while (nb < size && buf[nb])
+		nb++;
+
+	pad = block - (nb & ~-block);
+
+	if (pad)
+		memset((uint8_t *)(buf + nb), pad, pad);
+
+	return (PKCS_OK);
 }
 
-pkcs_status_t	pkcs_pad(pkcs_buf_t *buf)
-{
+/**
+* @prototype pkcs_unpad
+*
+* @brief  This function is used to unpad the data
+* padded with pkcs_pad function 
+* always following pkcs padding.
+*
+*
+* @param[in] uint8_t:	buf		buffer contained data to unpad.
+* @param[in] size_t:	size	size of the buffer.
+* @param[in] size_t:	block	size of the block.
+*
+* @return pkcs_status_t	return PKCS_OK if success.
+* 						otherwise is considered as error.
+*/
 
-	if (!buf || !buf->buf)
+pkcs_status_t	pkcs_unpad(uint8_t *buf, size_t size, size_t block)
+{
+	uint8_t *ptr = NULL;
+
+	if (!buf)
 		return (PKCS_ERR_BUF_NULL);
 
-	if (!buf->size)
-		return (PKCS_ERR_BUFF_SIZE_ZERO);
-
-	if (!buf->block || (buf->block > buf->size))
+	if (!size)
 		return (PKCS_ERR_INVALID_BLK_SIZE);
 
-    buf->nb = len_bytes(buf->buf, buf->size);
+	if (!block || block > size)
+		return (PKCS_ERR_INVALID_BLK_SIZE);
 
-    if (!PKCS_SHOULD_PAD(buf->block, buf->nb))
-		return (PKCS_OK);
+	ptr = (uint8_t *)(buf + (size - 1));
 
-	buf->pad_size = PKCS_PAD_LEN(buf->block, buf->nb);
+	while (*ptr == 0)
+		--ptr;
 
-	if ((size_t)(buf->nb + buf->pad_size) > buf->size)
-		return (PKCS_ERR_BUF_TOO_SMALL);
+	memset((uint8_t *)(ptr - *ptr) + 1, 0, *ptr);
 
-	memset((uint8_t*)&buf->buf[buf->nb], buf->pad_size, buf->pad_size);
-
-	return (PKCS_OK);
-}
-
-pkcs_status_t	pkcs_unpad(pkcs_buf_t* buf)
-{
-    uint8_t *ptr = NULL;
-
-    if (!buf || !buf->buf)
-        return (PKCS_ERR_BUF_NULL);
-
-    if (!buf->size)
-        return (PKCS_ERR_BUFF_SIZE_ZERO);
-    
-    if (!buf->pad_size)
-        return (PKCS_OK);
-
-    if (!buf->block || (buf->block > buf->size) || (buf->pad_size > buf->block) )
-        return (PKCS_ERR_INVALID_BLK_SIZE);
-
-    ptr = memrchr(buf->buf, buf->pad_size, buf->size);
-
-    if (!ptr)
-        return (PKCS_ERR_BUF_NULL);
-
-    ptr -= ~-buf->pad_size;
-
-    memset((uint8_t *)ptr, 0, buf->pad_size);
-
-	return (PKCS_OK);
+	return ((uint64_t)(((ptr - *ptr) + 1) - buf) == (block - *ptr) 
+			? PKCS_OK 
+			: PKCS_ERR_INVALID_BLK_SIZE);
 }
