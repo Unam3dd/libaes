@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/26 23:33:20 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/27 13:55:15 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,35 +122,35 @@ aes_status_t	aes_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, si
 			
 			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
 
-			if ((j & NR) == NR) break;
+			if (j == NR) break;
 
 			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
 
-			if ((j & NR) == NR) break;
+			if (j == NR) break;
 
 			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
 
-			if ((j & NR) == NR) break;
+			if (j == NR) break;
 
 			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
 
-			if ((j & NR) == NR) break;
+			if (j == NR) break;
 
 			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
 
-			if ((j & NR) == NR) break;
+			if (j == NR) break;
 
 			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
 
-			if ((j & NR) == NR) break;
+			if (j == NR) break;
 
 			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
 
-			if ((j & NR) == NR) break;
+			if (j == NR) break;
 
 			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
 
-			if ((j & NR) == NR) break;
+			if (j == NR) break;
 
 			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
 		}

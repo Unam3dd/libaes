@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/26 23:09:34 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/27 13:54:33 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,35 +125,35 @@ aes_status_t	aes_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 			
             feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
 
-            if ((j & NR) == NR) break ;
+            if (j == NR) break ;
 
             feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
 
-            if ((j & NR) == NR) break ;
+            if (j == NR) break ;
             
             feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
 
-            if ((j & NR) == NR) break ;
+            if (j == NR) break ;
 
             feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
             
-			if ((j & NR) == NR) break ;
+			if (j == NR) break ;
 
             feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
             
-			if ((j & NR) == NR) break ;
+			if (j == NR) break ;
 
             feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
             
-			if ((j & NR) == NR) break ;
+			if (j == NR) break ;
 
             feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
             
-			if ((j & NR) == NR) break ;
+			if (j == NR) break ;
 
             feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
             
-			if ((j & NR) == NR) break ;
+			if (j == NR) break ;
 
             feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
         }
