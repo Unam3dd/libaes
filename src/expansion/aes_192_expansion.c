@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_192_expansion.c                          |    |  |   |   |     |_    */
+/*   aes_192_expansion.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:11:52 by stales            #+#    #+#             */
-/*   Updated: 2024/11/12 21:36:38 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/27 23:24:50 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ aes_status_t	aes_192_key_expansion(const aes_key_t *k)
 {
 	if (!k) return (AES_ERR);
 
-	if (cpu_support_aes())
+	if (check_cpuid_support_aes())
 		AES_NI_192_KEY_EXPANSION(k->key_192, (aes_round_key_t *)k->sched_192);
 
 	return (AES_OK);

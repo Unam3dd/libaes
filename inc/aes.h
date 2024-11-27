@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/25 16:48:18 by stales              1993-2024            */
+/*   Updated: 2024/11/27 23:23:20 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -276,49 +276,27 @@ struct s_aes_buf_t
 * @return bool_t	return TRUE or FALSE depending on the CPU.
 */
 
-#if !defined(__clang__)
 __attribute__((optimize("O0"), __always_inline__))
-#elif defined(__clang__)
-__attribute__((__always_inline__))
-#endif
 static inline bool_t	check_cpuid_support_aes(void)
 {
-	uint32_t		ecx = 0;
+	uint32_t aes = 0;
 
-	__asm__ volatile ("push rbx\n\t"
+	__asm__ volatile ("xor eax, eax\n\t"
+			"or eax, 0x1\n\t"
+			"push rbx\n\t"
 			"push rcx\n\t"
 			"push rdx\n\t"
 			"cpuid\n\t"
-			: "=c" (ecx)
-			: "a" (1)
-			: "memory"
-			);
-
-	__asm__ volatile ("pop rdx\n\t"
+			"mov eax, ecx\n\t"
+			"pop rdx\n\t"
 			"pop rcx\n\t"
 			"pop rbx\n\t"
-			:
+			: "=a" (aes)
 			:
 			: "memory"
 			);
 
-	return ((ecx & (1 << 25)) ? TRUE : FALSE);
-}
-
-__attribute__((__always_inline__))
-static inline bool_t	cpu_support_aes(void)
-{
-	static bool_t	init = FALSE;
-	static bool_t	aes_ni = FALSE;
-
-	if (init)
-		return (aes_ni);
-
-	init = TRUE;
-	
-	aes_ni = (bool_t)check_cpuid_support_aes();
-
-	return (aes_ni);
+	return ((aes & (1 << 25)) ? TRUE : FALSE);
 }
 
 /////////////////////////////////////

@@ -4,7 +4,7 @@
 #
 #############################
 
-AES_EXPANSION_TEST_SRCS = ['aes_expansion_128']
+AES_EXPANSION_TEST_SRCS = ['aes_expansion_128', 'aes_expansion_192', 'aes_expansion_256']
 
 foreach AES_EXPANSION_TEST: AES_EXPANSION_TEST_SRCS
   AES_EXPANSION_TEST_EXE = executable(AES_EXPANSION_TEST + '.out',

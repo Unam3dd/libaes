@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_128_expansion.c                          |    |  |   |   |     |_    */
+/*   aes_128_expansion.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:11:52 by stales            #+#    #+#             */
-/*   Updated: 2024/11/25 16:49:25 by stales              1993-2024            */
+/*   Updated: 2024/11/27 23:24:07 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ aes_status_t	aes_128_key_expansion(const aes_key_t *k)
 {
 	if (!k) return (AES_ERR);
 
-	if (cpu_support_aes())
+	if (check_cpuid_support_aes())
 		AES_NI_128_KEY_EXPANSION(k->key_128, (aes_round_key_t *)k->sched_128);
 
 	return (AES_OK);

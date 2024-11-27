@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/25 18:11:52 by stales            #+#    #+#             */
-/*   Updated: 2024/11/12 21:36:51 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/27 23:25:12 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ aes_status_t	aes_256_key_expansion(const aes_key_t *k)
 {
 	if (!k) return (AES_ERR);
 
-	if (cpu_support_aes())
+	if (check_cpuid_support_aes())
 		AES_NI_256_KEY_EXPANSION(k->key_256, (aes_round_key_t *)k->sched_256);
 
 	return (AES_OK);

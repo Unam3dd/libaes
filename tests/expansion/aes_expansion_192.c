@@ -37,18 +37,19 @@ int main(void)
 	
     memset(&keys, 0, sizeof(keys));
 	
-    urandom(keys.key_128, sizeof(keys.key_128));
+    urandom(keys.key_192, sizeof(keys.key_192));
 
-    printf("Number of keys : %zd\n", sizeof(keys.sched_128) / sizeof(aes_round_key_t));
+	printf("%zd\n", sizeof(keys.sched_192));
+
+    printf("Number of keys : %zd\n", sizeof(keys.sched_192) / sizeof(aes_round_key_t));
 	
-    aes_128_key_expansion(&keys);
+    aes_192_key_expansion(&keys);
 
-	for (size_t i = 0; i < sizeof(keys.buf_sched_128) / AES_KEY_128; i++) {
-		printf("AES-128 ROUND KEY[%ld] = ", i);
-		if (!memcmp((__m128i*)&keys.round_keys[i], &zero, 0x10))
+	for (size_t i = 0; i < sizeof(keys.buf_sched_192) / AES_KEY_ROUND_SIZE; i++) {
+		printf("AES-192 ROUND KEY[%ld] = ", i);
+		if (!memcmp((__m128i*)&keys.round_keys[i], &zero, AES_KEY_ROUND_SIZE))
 			return (1);
-		print_hex((const uint8_t *)&keys.round_keys[i], AES_KEY_128);
-		//print_hex((const uint8_t *)(keys.buf_sched_128 + (i * AES_KEY_128)), AES_KEY_128);
+		print_hex((const uint8_t *)&keys.round_keys[i], AES_KEY_ROUND_SIZE);
 	}
 
 	return (0);
