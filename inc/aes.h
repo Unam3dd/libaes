@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes.h                                              :+:      :+:    :+:   */
+/*   aes.h                                        |    |  |   |   |     |_    */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/27 23:23:20 by stales           ###   ########.fr       */
+/*   Updated: 2024/11/29 15:15:02 by stales              1993-2024            */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -345,6 +345,30 @@ aes_status_t		aes_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, s
 
 aes_status_t		aes_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 aes_status_t		aes_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+
+/////////////////////////////////////
+//
+//
+//	  		AES-OFB
+//	  Output Feedback (OFB)
+//
+//
+////////////////////////////////////
+
+aes_status_t		aes_ofb_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_ofb_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+
+/////////////////////////////////////
+//
+//
+//	  		AES-CFB
+//	  Output Feedback (OFB)
+//
+//
+////////////////////////////////////
+
+aes_status_t		aes_cfb_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_cfb_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 
 /////////////////////////////////////
 //
