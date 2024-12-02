@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/12/01 00:25:59 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/03 00:07:55 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@
 
 #include <emmintrin.h>
 #include <wmmintrin.h>
+#include <immintrin.h>
 
 /////////////////////////////////////
 //
@@ -113,6 +114,8 @@ aes_status_t	aes_ctr_enc(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte
 
 		// Load State
 		state = _mm_loadu_si128( &((__m128i*)in)[i]);
+
+		iv->counter = _bswap64(iv->counter);
 
 		feedback = _mm_loadu_si128((__m128i*)iv);
 
@@ -164,6 +167,7 @@ aes_status_t	aes_ctr_enc(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte
 		
 		_mm_storeu_si128(&((__m128i*)out)[i], state);
 
+		iv->counter = _bswap64(iv->counter);
 		iv->counter++;
 	}
 
