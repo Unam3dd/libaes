@@ -33,7 +33,7 @@ SRCS_RC = ['src/rc/rc.c']
 SRCS_PKCS = ['src/pkcs/pkcs.c']
 SRCS_EXPANSION = ['src/expansion/aes_128_expansion.c', 'src/expansion/aes_192_expansion.c', 'src/expansion/aes_256_expansion.c']
 SRCS_RANDOM = ['src/random/rdrnd.c', 'src/random/urandom.c']
-SRCS_AES = ['src/ecb/aes_ecb.c', 'src/cbc/aes_cbc.c', 'src/cfb/aes_cfb.c']
+SRCS_AES = ['src/ecb/aes_ecb.c', 'src/cbc/aes_cbc.c', 'src/cfb/aes_cfb.c', 'src/ofb/aes_ofb.c', 'src/ctr/aes_ctr.c']
 
 SRCS = [SRCS_PKCS, SRCS_RC, SRCS_EXPANSION, SRCS_RANDOM, SRCS_AES]
 SRCS_FILES = files(SRCS)
@@ -82,7 +82,7 @@ endif
 #
 #############################
 
-TEST_SUBPROJECT = ['tests/rc', 'tests/expansion', 'tests/random', 'tests/aes_ecb', 'tests/aes_cbc', 'tests/aes_cfb', 'tests/pkcs']
+TEST_SUBPROJECT = ['tests/rc', 'tests/expansion', 'tests/random', 'tests/aes_ecb', 'tests/aes_cbc', 'tests/aes_cfb', 'tests/pkcs', 'tests/aes_ofb', 'tests/aes_ctr']
 
 #############################
 #

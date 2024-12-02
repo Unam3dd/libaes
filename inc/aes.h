@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes.h                                        |    |  |   |   |     |_    */
+/*   aes.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/11/29 15:15:02 by stales              1993-2024            */
+/*   Updated: 2024/12/01 00:22:30 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,9 +132,10 @@ typedef byte_t			aes_round_key_u8_t	__attribute__ ((vector_size(16), aligned(16)
 typedef long long 		aes_round_key_t	__attribute__ ((vector_size(16), aligned(16)));
 
 
-typedef struct	s_aes_ctx_t		aes_ctx_t;
-typedef struct	s_aes_buf_t		aes_buf_t;
-typedef struct	s_aes_key_t		aes_key_t;
+typedef struct	s_aes_ctx_t			aes_ctx_t;
+typedef struct	s_aes_buf_t			aes_buf_t;
+typedef struct	s_aes_key_t			aes_key_t;
+typedef struct	s_aes_counter_t		aes_counter_t;
 
 /////////////////////////////////////
 //
@@ -234,6 +235,13 @@ struct s_aes_buf_t
 		size_t	capacity;	/*  Size of the buffer */
 	};
 };
+
+/* Use in AES-CTR Mode and GCM */
+struct s_aes_counter_t
+{
+	uint64_t	counter; 		/* The Counter */
+	byte_t		nonce[0x8];		/* The Nonce just random bytes */
+} __attribute__((packed));
 
 /////////////////////////////////////
 //
@@ -346,6 +354,19 @@ aes_status_t		aes_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, s
 aes_status_t		aes_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 aes_status_t		aes_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 
+
+/////////////////////////////////////
+//
+//
+//	  		AES-CFB
+//	  Output Feedback (OFB)
+//
+//
+////////////////////////////////////
+
+aes_status_t		aes_cfb_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_cfb_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+
 /////////////////////////////////////
 //
 //
@@ -361,14 +382,13 @@ aes_status_t		aes_ofb_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restr
 /////////////////////////////////////
 //
 //
-//	  		AES-CFB
-//	  Output Feedback (OFB)
+//			AES-CTR
 //
 //
 ////////////////////////////////////
 
-aes_status_t		aes_cfb_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-aes_status_t		aes_cfb_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_ctr_enc(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_ctr_dec(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 
 /////////////////////////////////////
 //

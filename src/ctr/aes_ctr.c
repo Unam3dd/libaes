@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   aes_cfb.c                                          :+:      :+:    :+:   */
+/*   aes_ctr.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/30 14:39:14 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/01 00:25:59 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,9 +85,9 @@
 //
 ////////////////////////////////////
 
-aes_status_t	aes_cfb_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
+aes_status_t	aes_ctr_enc(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
 {
-	if (!ctx || !out || !in || (o_sz < i_sz))
+	if (!ctx || !out || !in || (o_sz < i_sz) || !iv)
 		return (AES_ERR);
 
 	if (ctx->pad && IS_NOT_ALIGNED(i_sz, AES_BLOCK_SIZE))
@@ -107,12 +107,14 @@ aes_status_t	aes_cfb_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 	// How Many iterations of 16 bytes Blocks which represent the number of state ?
 	size_t blocks = (i_sz & 0xF ?  -~(i_sz >> 0x4) : (i_sz >> 0x4));
 
-	feedback = _mm_loadu_si128((__m128i*)iv);
+	iv->counter = 0;
 
 	for (i = 0; i < blocks; i++) {
 
 		// Load State
 		state = _mm_loadu_si128( &((__m128i*)in)[i]);
+
+		feedback = _mm_loadu_si128((__m128i*)iv);
 
 		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
 		feedback = AddRoundKey(feedback, ctx->key.sched[0]);
@@ -158,93 +160,14 @@ aes_status_t	aes_cfb_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 		
         feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[j]);
 
-        state = _mm_xor_si128(state, feedback);
-        feedback = state;
-		_mm_storeu_si128(&((__m128i*)out)[i], feedback);
-	}
-
-	return (AES_OK);
-}
-
-aes_status_t	aes_cfb_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
-{
-	if (!ctx || !out || !in || (o_sz < i_sz))
-		return (AES_ERR);
-
-	if (ctx->pad && IS_NOT_ALIGNED(i_sz, AES_BLOCK_SIZE))
-		return (AES_ERR_BLOCK_PAD);
-
-	__m128i state = _mm_setzero_si128();
-	__m128i feedback = _mm_setzero_si128();
-    __m128i cipher = _mm_setzero_si128();
-
-	size_t i = 0, j = 0;
-
-	size_t NR = (ctx->key_size == AES_KEY_128
-		? AES_128_NR 
-		: ctx->key_size == AES_KEY_192 
-		? AES_192_NR
-		: AES_256_NR);
-
-	// How Many iterations of 16 bytes Blocks which represent the number of state ?
-	size_t blocks = (i_sz & 0xF ?  -~(i_sz >> 0x4) : (i_sz >> 0x4));
-
-	feedback = _mm_loadu_si128((__m128i*)iv);
-
-	for (i = 0; i < blocks; i++) {
-
-		// Load State
-		state = _mm_loadu_si128( &((__m128i*)in)[i]);
-
-		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
-		feedback = AddRoundKey(feedback, ctx->key.sched[0]);
-
-        j = 1;
-
-        while (j < NR) {
-			
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-
-            if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-
-            if (j == NR) break ;
-            
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-
-            if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-        }
+        state = _mm_xor_si128(feedback, state);
 		
-        feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[j]);
-
-        cipher = state;
-        state = _mm_xor_si128(state, feedback);
-        feedback = cipher;
 		_mm_storeu_si128(&((__m128i*)out)[i], state);
+
+		iv->counter++;
 	}
 
 	return (AES_OK);
 }
+
+aes_status_t __attribute__((alias("aes_ctr_enc"))) aes_ctr_dec(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
