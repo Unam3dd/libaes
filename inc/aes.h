@@ -6,14 +6,13 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/12/02 23:58:30 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/04 13:44:28 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef AES_H
 #define AES_H
 
-#include <sys/cdefs.h>
 #if !defined (__x86_64__)
 #error "This library can be used only on x86 architecture because is used AES-NI instruction set !"
 #endif
@@ -28,6 +27,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <immintrin.h>
 
 /////////////////////////////////////
 //
@@ -85,14 +85,6 @@
 #define AES_BLOCK_SIZE 0x10
 #endif
 
-#ifndef BSWAP_64
-#define BSWAP_64(x) ((x >> 32) | (x << 32))
-#endif
-
-#ifndef BSWAP_32
-#define BSWAP_32(x) ((x >> 16) | (x << 16))
-#endif
-
 /////////////////////////////////////
 //
 //
@@ -116,6 +108,16 @@ typedef const char*		string_t;
 */
 
 typedef byte_t			iv_t[16];
+
+/**
+* @prototype Nonce
+*
+* @brief  Just random bytes use in AES-CTR or other AES implemention which use a counter 
+*
+*/
+
+typedef byte_t			nonce_t[0x8];
+
 
 
 /**
@@ -247,7 +249,7 @@ struct s_aes_buf_t
 /* Use in AES-CTR Mode and GCM */
 struct s_aes_counter_t
 {
-	byte_t		nonce[0x8];		/* The Nonce just random bytes */
+	nonce_t		nonce;			/* The Nonce just random bytes */
 	uint64_t	counter; 		/* The Counter */
 } __attribute__((packed));
 
@@ -415,6 +417,10 @@ aes_status_t		aes_ctr_dec(byte_t *out, size_t o_sz, aes_counter_t *iv, const byt
 
 #ifndef AddRoundKey
 #define AddRoundKey(state, expandedkey) (_mm_xor_si128(state, expandedkey))
+#endif
+
+#ifndef AES_RANDOM_NONCE
+#define AES_RANDOM_NONCE(x) _rdrand64_step(&x)
 #endif
 
 #endif

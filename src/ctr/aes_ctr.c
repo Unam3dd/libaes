@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/12/03 00:07:55 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/04 14:06:25 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,46 +121,27 @@ aes_status_t	aes_ctr_enc(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte
 
 		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
 		feedback = AddRoundKey(feedback, ctx->key.sched[0]);
+        
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[1]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[2]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[3]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[4]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[5]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[6]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[7]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[8]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[9]);
 
-        j = 1;
+		j = 10;
 
-        while (j < NR) {
-			
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+		while (j < NR) {
+			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
 
-            if (j == NR) break ;
+			if (j == NR) break;
 
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+		}
 
-            if (j == NR) break ;
-            
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-
-            if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-        }
-		
         feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[j]);
 
         state = _mm_xor_si128(feedback, state);
