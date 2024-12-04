@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/12/04 14:06:25 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/04 23:04:26 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,23 +81,52 @@
 /////////////////////////////////////
 //
 //
-//	    Cipher Feedback
+//	    AES Counter
 //
 //
 ////////////////////////////////////
+
+aes_status_t __attribute__((alias("aes_ctr_enc"))) aes_ctr_dec(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+
+/**
+* @prototype aes_ctr_enc/aes_ctr_dec
+*
+* @brief  That function encrypt your data with
+* 	AES-CTR mode operation.
+*
+*	This implementation work with Counter/LFSR
+*
+*	The structure of the counter is just a random nonce of 8, 12, or 16 bytes.
+*	A nonce is just a random bytes, The counter is just a integer and start at 0.
+*
+*	So the High part of the Counter structure is the nonce and low part is the counter.
+*
+*	NOTE: In some implementation the counter is in big-endian take care of it.
+*	WARNING: The user should not use the same IV (Same nonce with same key for sure), in case
+*	of this behavior is performed this implementation is vulnerable to key-reused attack because AES-CTR transform
+*	a block cipher in stream cipher.
+*
+* @param[in] byte_t: 		*out	Pointer to the output buffer where the encrypted data will be stored.
+* @param[in] size_t:		o_sz	This value is the size of the output buffer.
+* @param[in] aes_counter_t: *iv		This pointer represent a structure in memory of IV (Initialize Vector) It contains a nonce and a integer counter.
+* @param[in] const byte_t:	*in		This pointer is the input buffer, there is the data you can encrypt.
+* @param[in] size_t:		i_sz	This is the size of the input bytes you want encrypt.
+* @param[in] aes_ctx_t:		ctx		There is the context of your aes session contain the key, size of the key (etc...).
+* 
+*
+*
+* @return int             Returns sum of a + b.
+*/
 
 aes_status_t	aes_ctr_enc(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
 {
 	if (!ctx || !out || !in || (o_sz < i_sz) || !iv)
 		return (AES_ERR);
 
-	if (ctx->pad && IS_NOT_ALIGNED(i_sz, AES_BLOCK_SIZE))
-		return (AES_ERR_BLOCK_PAD);
-
 	__m128i state = _mm_setzero_si128();
 	__m128i feedback = _mm_setzero_si128();
 
-	size_t i = 0, j = 0;
+	size_t i = 0;
 
 	size_t NR = (ctx->key_size == AES_KEY_128
 		? AES_128_NR 
@@ -115,7 +144,7 @@ aes_status_t	aes_ctr_enc(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte
 		// Load State
 		state = _mm_loadu_si128( &((__m128i*)in)[i]);
 
-		iv->counter = _bswap64(iv->counter);
+		iv->counter = _bswap(iv->counter);
 
 		feedback = _mm_loadu_si128((__m128i*)iv);
 
@@ -132,27 +161,26 @@ aes_status_t	aes_ctr_enc(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte
 		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[8]);
 		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[9]);
 
-		j = 10;
+		if (NR >= AES_192_NR) {
+			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[10]);
+			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[11]);
 
-		while (j < NR) {
-			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-
-			if (j == NR) break;
-
-			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
+			if (NR == AES_256_NR) {
+				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[12]);
+				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[13]);
+			}
 		}
 
-        feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[j]);
+        feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[NR]);
 
         state = _mm_xor_si128(feedback, state);
 		
 		_mm_storeu_si128(&((__m128i*)out)[i], state);
 
-		iv->counter = _bswap64(iv->counter);
+		iv->counter = _bswap(iv->counter);
 		iv->counter++;
 	}
 
 	return (AES_OK);
 }
 
-aes_status_t __attribute__((alias("aes_ctr_enc"))) aes_ctr_dec(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);

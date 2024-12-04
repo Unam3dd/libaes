@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/12/04 13:44:28 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/04 23:00:56 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ typedef byte_t			iv_t[16];
 *
 */
 
-typedef byte_t			nonce_t[0x8];
+typedef byte_t			nonce_t[0xC];
 
 
 
@@ -250,7 +250,7 @@ struct s_aes_buf_t
 struct s_aes_counter_t
 {
 	nonce_t		nonce;			/* The Nonce just random bytes */
-	uint64_t	counter; 		/* The Counter */
+	uint32_t	counter; 		/* The Counter */
 } __attribute__((packed));
 
 /////////////////////////////////////
