@@ -58,10 +58,10 @@ int main(void)
 	memset((char *)ctx.key.key_128, 'A', 0x10);
     memset(ctx.iv, 0x41, 0x10);
 
-	printf("Original AES-128-CBC Key : ");
+	printf("Original AES-128-CFB Key : ");
 	print_hex(ctx.key.key_128, sizeof(ctx.key.key_128));
 
-    printf("IV AES-128-CBC: ");
+    printf("IV AES-128-CFB: ");
     print_hex(ctx.iv, sizeof(ctx.iv));
 
 	aes_128_key_expansion(&ctx.key);

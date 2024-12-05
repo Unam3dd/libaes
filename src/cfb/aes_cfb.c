@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/30 14:39:14 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/05 00:47:35 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ aes_status_t	aes_cfb_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 	__m128i state = _mm_setzero_si128();
 	__m128i feedback = _mm_setzero_si128();
 
-	size_t i = 0, j = 0;
+	size_t i = 0;
 
 	size_t NR = (ctx->key_size == AES_KEY_128
 		? AES_128_NR 
@@ -116,47 +116,27 @@ aes_status_t	aes_cfb_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 
 		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
 		feedback = AddRoundKey(feedback, ctx->key.sched[0]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[1]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[2]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[3]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[4]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[5]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[6]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[7]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[8]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[9]);
 
-        j = 1;
+		if (NR >= AES_192_NR) {
+			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[10]);
+			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[11]);
 
-        while (j < NR) {
-			
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-
-            if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-
-            if (j == NR) break ;
-            
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-
-            if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-        }
+			if (NR == AES_256_NR) {
+				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[12]);
+				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[13]);
+			}
+		}
 		
-        feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[j]);
+        feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[NR]);
 
         state = _mm_xor_si128(state, feedback);
         feedback = state;
@@ -178,7 +158,7 @@ aes_status_t	aes_cfb_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 	__m128i feedback = _mm_setzero_si128();
     __m128i cipher = _mm_setzero_si128();
 
-	size_t i = 0, j = 0;
+	size_t i = 0;
 
 	size_t NR = (ctx->key_size == AES_KEY_128
 		? AES_128_NR 
@@ -198,47 +178,27 @@ aes_status_t	aes_cfb_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 
 		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
 		feedback = AddRoundKey(feedback, ctx->key.sched[0]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[1]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[2]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[3]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[4]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[5]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[6]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[7]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[8]);
+        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[9]);
 
-        j = 1;
+		if (NR >= AES_192_NR) {
+			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[10]);
+			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[11]);
 
-        while (j < NR) {
-			
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-
-            if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-
-            if (j == NR) break ;
-            
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-
-            if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-            
-			if (j == NR) break ;
-
-            feedback = _mm_aesenc_si128(feedback, ctx->key.sched[j++]);
-        }
+			if (NR == AES_256_NR) {
+				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[12]);
+				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[13]);
+			}
+		}
 		
-        feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[j]);
+        feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[NR]);
 
         cipher = state;
         state = _mm_xor_si128(state, feedback);

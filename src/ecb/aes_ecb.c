@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/11/27 13:55:15 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/05 01:45:10 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ aes_status_t	aes_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, si
 
 	__m128i state = _mm_setzero_si128();
 
-	size_t i = 0, j = 0;
+	size_t i = 0;
 
 	size_t NR = (ctx->key_size == AES_KEY_128
 		? AES_128_NR 
@@ -111,54 +111,30 @@ aes_status_t	aes_ecb_enc(byte_t *out, size_t o_sz, const byte_t *restrict in, si
 		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
 		state = AddRoundKey(state, ctx->key.sched[0]);
 
-		j = 1;
+		state = _mm_aesenc_si128(state, ctx->key.sched[1]);
+		state = _mm_aesenc_si128(state, ctx->key.sched[2]);
+		state = _mm_aesenc_si128(state, ctx->key.sched[3]);
+		state = _mm_aesenc_si128(state, ctx->key.sched[4]);
+		state = _mm_aesenc_si128(state, ctx->key.sched[5]);
+		state = _mm_aesenc_si128(state, ctx->key.sched[6]);
+		state = _mm_aesenc_si128(state, ctx->key.sched[7]);
+		state = _mm_aesenc_si128(state, ctx->key.sched[8]);
+		state = _mm_aesenc_si128(state, ctx->key.sched[9]);
 
-		while (j < NR) {
+		if (NR >= AES_192_NR) {
+			state = _mm_aesenc_si128(state, ctx->key.sched[10]);
+			state = _mm_aesenc_si128(state, ctx->key.sched[11]);
 
-			//      a[127:0] := ShiftRows(a[127:0])
-			//      a[127:0] := SubBytes(a[127:0])
-			//      a[127:0] := MixColumns(a[127:0])
-			//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
-			
-			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
-
-			if (j == NR) break;
-
-			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
-
-			if (j == NR) break;
-
-			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
-
-			if (j == NR) break;
-
-			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
-
-			if (j == NR) break;
-
-			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
-
-			if (j == NR) break;
-
-			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
-
-			if (j == NR) break;
-
-			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
-
-			if (j == NR) break;
-
-			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
-
-			if (j == NR) break;
-
-			state = _mm_aesenc_si128(state, ctx->key.sched[j++]);
+			if (NR == AES_256_NR) {
+				state = _mm_aesenc_si128(state, ctx->key.sched[12]);
+				state = _mm_aesenc_si128(state, ctx->key.sched[13]);
+			}
 		}
 
 		//      a[127:0] := ShiftRows(a[127:0])
 		//      a[127:0] := SubBytes(a[127:0])
 		//      dst[127:0] := a[127:0] (AddRoundKey) XOR RoundKey[127:0]
-		state = _mm_aesenclast_si128(state, ctx->key.sched[j]);
+		state = _mm_aesenclast_si128(state, ctx->key.sched[NR]);
 
 		_mm_storeu_si128(&((__m128i*)out)[i], state);
 	}
@@ -173,7 +149,7 @@ aes_status_t	aes_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, si
 		return (AES_ERR);
 
 	__m128i state = _mm_setzero_si128();
-	size_t i = 0, j = 0;
+	size_t i = 0;
 
 	size_t NR = (ctx->key_size == AES_KEY_128
 		? AES_128_NR 
@@ -187,43 +163,24 @@ aes_status_t	aes_ecb_dec(byte_t *out, size_t o_sz, const byte_t *restrict in, si
 		state = _mm_loadu_si128( &((__m128i*)in)[i]);
 
         state = AddRoundKey(state, ctx->key.sched[NR]);
+        state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 1]));
+        state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 2]));
+        state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 3]));
+        state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 4]));
+        state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 5]));
+        state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 6]));
+        state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 7]));
+        state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 8]));
+        state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 9]));
 
-		j = ~-NR;
+		if (NR >= AES_192_NR) {
+			state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 10]));
+			state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 11]));
 
-		while (j > 0) {
-            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
-
-			if (!j) break ;
-
-            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
-
-			if (!j) break ;
-
-            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
-
-			if (!j) break ;
-
-            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
-
-			if (!j) break ;
-
-            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
-
-			if (!j) break ;
-
-            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
-
-			if (!j) break ;
-
-            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
-
-			if (!j) break ;
-
-            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
-
-			if (!j) break ;
-
-            state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[j--]));
+			if (NR == AES_256_NR) {
+				state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 12]));
+				state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 13]));
+			}
 		}
         
         state = _mm_aesdeclast_si128(state, ctx->key.sched[0]);

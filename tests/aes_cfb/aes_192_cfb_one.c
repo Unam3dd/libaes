@@ -51,16 +51,12 @@ int main(void)
 	memset(ctx.key.key_192, 'A', 0x18);
     memset(ctx.iv, 0x41, sizeof(ctx.iv));
 
-	printf("Original AES-192-CBC Key : ");
+	printf("Original AES-192-CFB Key : ");
 	print_hex(ctx.key.key_192, sizeof(ctx.key.key_192));
 
 	aes_192_key_expansion(&ctx.key);
 
-    __asm__ volatile("# LLVM-MCA-BEGIN foo":::"memory");
-
 	aes_cfb_enc(out, sizeof(out), ctx.iv, in, sizeof(in), &ctx);
-
-    __asm__ volatile("# LLVM-MCA-END":::"memory");
 
 	printf("Output buffer after encryption = ");
 	print_hex(out, sizeof(out));

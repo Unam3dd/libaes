@@ -51,7 +51,7 @@ int main(void)
 	memset(ctx.key.key_256, 'A', 0x20);
     memset(ctx.iv, 0x41, sizeof(ctx.iv));
 
-	printf("Original AES-256-CBC Key : ");
+	printf("Original AES-256-CFB Key : ");
 	print_hex(ctx.key.key_256, sizeof(ctx.key.key_256));
 
 	aes_256_key_expansion(&ctx.key);
