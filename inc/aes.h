@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/12/04 23:00:56 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/06 14:00:52 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -253,6 +253,7 @@ struct s_aes_counter_t
 	uint32_t	counter; 		/* The Counter */
 } __attribute__((packed));
 
+
 /////////////////////////////////////
 //
 //
@@ -417,10 +418,6 @@ aes_status_t		aes_ctr_dec(byte_t *out, size_t o_sz, aes_counter_t *iv, const byt
 
 #ifndef AddRoundKey
 #define AddRoundKey(state, expandedkey) (_mm_xor_si128(state, expandedkey))
-#endif
-
-#ifndef AES_RANDOM_NONCE
-#define AES_RANDOM_NONCE(x) _rdrand64_step(&x)
 #endif
 
 #endif
