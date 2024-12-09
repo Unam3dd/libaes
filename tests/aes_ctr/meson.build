@@ -4,7 +4,7 @@
 #
 #############################
 
-AES_CTR_TEST_SRCS = ['aes_192_ctr_one', 'aes_256_ctr_one', 'aes_128_ctr_one', 'aes_128_ctr_two', 'aes_128_ctr_random']
+AES_CTR_TEST_SRCS = ['aes_192_ctr_one', 'aes_256_ctr_one', 'aes_128_ctr_one', 'aes_128_ctr_two', 'aes_128_ctr_random', 'aes_128_ctr_three']
 
 foreach AES_CTR_TEST: AES_CTR_TEST_SRCS
   AES_CTR_TEST_EXE = executable(AES_CTR_TEST + '.out',

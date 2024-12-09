@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/12/04 23:04:26 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/09 13:39:33 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,8 +144,6 @@ aes_status_t	aes_ctr_enc(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte
 		// Load State
 		state = _mm_loadu_si128( &((__m128i*)in)[i]);
 
-		iv->counter = _bswap(iv->counter);
-
 		feedback = _mm_loadu_si128((__m128i*)iv);
 
 		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
@@ -177,8 +175,7 @@ aes_status_t	aes_ctr_enc(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte
 		
 		_mm_storeu_si128(&((__m128i*)out)[i], state);
 
-		iv->counter = _bswap(iv->counter);
-		iv->counter++;
+		iv->counter += 0x01000000;
 	}
 
 	return (AES_OK);
