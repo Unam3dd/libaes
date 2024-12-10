@@ -33,6 +33,16 @@ int main(void)
 
 	if (buf != rdrnd(buf, 5))
 		return (1);
+
+	print_hex(buf, sizeof(buf));
+	
+	if (buf != rdrnd(buf, 8))
+		return (1);
+	
+	print_hex(buf, sizeof(buf));
+
+	if (buf != rdrnd(buf, 0x10))
+		return (1);
 	
 	print_hex(buf, sizeof(buf));
 

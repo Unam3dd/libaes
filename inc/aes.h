@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/12/06 14:00:52 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/10 21:32:49 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,18 +107,7 @@ typedef const char*		string_t;
 *	is just 16 bytes array.
 */
 
-typedef byte_t			iv_t[16];
-
-/**
-* @prototype Nonce
-*
-* @brief  Just random bytes use in AES-CTR or other AES implemention which use a counter 
-*
-*/
-
-typedef byte_t			nonce_t[0xC];
-
-
+typedef byte_t			iv_t[0x10];
 
 /**
 *
@@ -245,14 +234,6 @@ struct s_aes_buf_t
 		size_t	capacity;	/*  Size of the buffer */
 	};
 };
-
-/* Use in AES-CTR Mode and GCM */
-struct s_aes_counter_t
-{
-	nonce_t		nonce;			/* The Nonce just random bytes */
-	uint32_t	counter; 		/* The Counter */
-} __attribute__((packed));
-
 
 /////////////////////////////////////
 //
@@ -398,8 +379,8 @@ aes_status_t		aes_ofb_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restr
 //
 ////////////////////////////////////
 
-aes_status_t		aes_ctr_enc(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-aes_status_t		aes_ctr_dec(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_ctr_enc(byte_t *out, size_t o_sz, const iv_t nonce, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_ctr_dec(byte_t *out, size_t o_sz, const iv_t nonce, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 
 /////////////////////////////////////
 //

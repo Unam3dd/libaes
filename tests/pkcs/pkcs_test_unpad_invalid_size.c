@@ -34,7 +34,7 @@ int main(void)
 	memset(buf, 0, sizeof(buf));
 	memset(cpy, 0, sizeof(cpy));
 
-	puts("SHOULD FAILED");
+	puts("SHOULD FAIL");
 
 	if ((status = pkcs_pad((uint8_t *)buf, sizeof(buf), 0x10)) != PKCS_OK) {
 		fprintf(stderr, "pkcs_pad() : %d\n", status);

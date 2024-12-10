@@ -29,8 +29,8 @@ static void	print_hex(const uint8_t *buf, size_t size)
 
 int main(void)
 {
-	aes_ctx_t ctx;
-	aes_counter_t cnt;
+	aes_ctx_t	ctx;
+	iv_t		cnt;
 	
 	uint8_t in[0x100];
 	uint8_t cpy[0x100];
@@ -58,14 +58,15 @@ int main(void)
 	print_hex(in, sizeof(in));
 
 	memset((char *)ctx.key.key_128, 'A', 0x10);
-	memset(cnt.nonce, 0x41, sizeof(cnt.nonce));
+	memset(cnt, 0, sizeof(cnt));
+	memset(cnt, 0x41, 0xC);
 
 	printf("Original AES-128-CTR Key : ");
 	print_hex(ctx.key.key_128, sizeof(ctx.key.key_128));
 
 	aes_128_key_expansion(&ctx.key);
 
-	aes_ctr_enc(out, sizeof(out), &cnt, in, sizeof(in), &ctx);
+	aes_ctr_enc(out, sizeof(out), cnt, in, sizeof(in), &ctx);
 
 	printf("Output buffer after encryption = ");
 	print_hex(out, sizeof(out));
@@ -74,7 +75,7 @@ int main(void)
 
 	memset(out, 0, sizeof(out));
 
-	aes_ctr_dec(out, sizeof(out), &cnt, in, sizeof(in), &ctx);
+	aes_ctr_dec(out, sizeof(out), cnt, in, sizeof(in), &ctx);
 
 	printf("Output buffer after decryption = ");
 	print_hex(out, sizeof(out));

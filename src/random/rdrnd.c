@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/07 18:21:42 by stales            #+#    #+#             */
-/*   Updated: 2024/11/09 09:17:36 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/10 20:35:04 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,34 +16,52 @@
 
 #if defined (__RDRND__)
 
+static inline uint8_t *r(uint8_t *restrict ptr, size_t *size)
+{
+	uint32_t r = 0;
+
+	if (!(*size & 0x7))
+		return (ptr);
+
+	while (*size & 0x7) {
+		
+		_rdrand32_step(&r);
+
+		if ((*size & 0x7) >= sizeof(uint32_t)) {
+			*(uint32_t*)ptr = r;
+			ptr += sizeof(uint32_t);
+			*size -= sizeof(uint32_t);
+			continue ;
+		}
+
+		if ((*size & 0x7) >= sizeof(uint16_t)) {
+			*(uint16_t*)ptr = r & 0xFFFF;
+			ptr += sizeof(uint32_t);
+			*size -= sizeof(uint32_t);
+			continue ;
+		}
+
+		*ptr++ = r & 0xFF;
+		(*size)--;
+	}
+
+	return (ptr);
+}
+
 uint8_t	*rdrnd(uint8_t *restrict buf, size_t size)
 {
 	if (!buf) return (NULL);
 
 	if (!size) return (buf);
 
-	uint8_t *ptr = buf;
-	uint16_t r = 0;
+	uint8_t *ptr = NULL;
 
-	while (size & 0x7) {
-		
-		_rdrand16_step(&r);
+	ptr = r(buf, &size);
 
-		if ((size & 0x7) >= sizeof(uint16_t)) {
-			*(uint16_t*)ptr = r;
-			size -= 2;
-			ptr += 2;
-			continue ;
-		}
-
-		*ptr++ = r & 0xFF;
-		size--;
-	}
-
-	while (size > 0) {
+	while (size) {
 		_rdrand64_step((unsigned long long *)ptr);
-		ptr += sizeof(unsigned long long);
-		size -= sizeof(unsigned long long);
+		ptr += 0x8;
+		size -= 0x8;
 	}
 
 	return (buf);

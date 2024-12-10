@@ -3,6 +3,6 @@
 
 int main(void)
 {
-	puts("SHOULD FAILED !");
+	puts("SHOULD FAIL !");
 	return (pkcs_pad(NULL, 0x100, 0x10) == PKCS_OK);
 }

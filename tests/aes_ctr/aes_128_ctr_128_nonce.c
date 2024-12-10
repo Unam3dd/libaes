@@ -61,7 +61,7 @@ int main(void)
 
 	memset((char *)ctx.key.key_128, 'A', 0x10);
 	memset(cnt, 0, sizeof(iv_t));
-    memset(cnt, 0x41, 0xC);
+    memset(cnt, 0x41, sizeof(iv_t));
 
 	printf("Original AES-128-CTR Key : ");
 	print_hex(ctx.key.key_128, sizeof(ctx.key.key_128));

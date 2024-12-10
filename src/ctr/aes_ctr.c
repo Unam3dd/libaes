@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/12/09 13:39:33 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/10 22:57:36 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@
 #include <emmintrin.h>
 #include <wmmintrin.h>
 #include <immintrin.h>
+#include <xmmintrin.h>
 
 /////////////////////////////////////
 //
@@ -86,7 +87,7 @@
 //
 ////////////////////////////////////
 
-aes_status_t __attribute__((alias("aes_ctr_enc"))) aes_ctr_dec(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t __attribute__((alias("aes_ctr_enc"))) aes_ctr_dec(byte_t *out, size_t o_sz, const iv_t nonce, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 
 /**
 * @prototype aes_ctr_enc/aes_ctr_dec
@@ -108,25 +109,24 @@ aes_status_t __attribute__((alias("aes_ctr_enc"))) aes_ctr_dec(byte_t *out, size
 *
 * @param[in] byte_t: 		*out	Pointer to the output buffer where the encrypted data will be stored.
 * @param[in] size_t:		o_sz	This value is the size of the output buffer.
-* @param[in] aes_counter_t: *iv		This pointer represent a structure in memory of IV (Initialize Vector) It contains a nonce and a integer counter.
+* @param[in] const iv_t:    nonce	The nonce is just random value generaly 96 bits and the last 32 bits is the counter. So 16 bytes
 * @param[in] const byte_t:	*in		This pointer is the input buffer, there is the data you can encrypt.
 * @param[in] size_t:		i_sz	This is the size of the input bytes you want encrypt.
 * @param[in] aes_ctx_t:		ctx		There is the context of your aes session contain the key, size of the key (etc...).
 * 
 *
-*
-* @return int             Returns sum of a + b.
+* @return aes_status_t AES_OK if success otherwise is an error.
 */
 
-aes_status_t	aes_ctr_enc(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
+aes_status_t	aes_ctr_enc(byte_t *out, size_t o_sz, const iv_t nonce, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
 {
-	if (!ctx || !out || !in || (o_sz < i_sz) || !iv)
+	if (!ctx || !out || !in || (o_sz < i_sz))
 		return (AES_ERR);
 
 	__m128i state = _mm_setzero_si128();
 	__m128i feedback = _mm_setzero_si128();
-
-	size_t i = 0;
+	uint32_t *cnt = (uint32_t *)(nonce + 0xC);
+	uint32_t save = *cnt;
 
 	size_t NR = (ctx->key_size == AES_KEY_128
 		? AES_128_NR 
@@ -137,35 +137,35 @@ aes_status_t	aes_ctr_enc(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte
 	// How Many iterations of 16 bytes Blocks which represent the number of state ?
 	size_t blocks = (i_sz & 0xF ?  -~(i_sz >> 0x4) : (i_sz >> 0x4));
 
-	iv->counter = 0;
+	for (size_t i = 0; i < blocks; i++) {
 
-	for (i = 0; i < blocks; i++) {
+		_mm_prefetch((__m128i*)(in + 0x20), _MM_HINT_T0);
 
 		// Load State
 		state = _mm_loadu_si128( &((__m128i*)in)[i]);
 
-		feedback = _mm_loadu_si128((__m128i*)iv);
+		feedback = _mm_loadu_si128((__m128i*)nonce);
 
 		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
-		feedback = AddRoundKey(feedback, ctx->key.sched[0]);
+		feedback = AddRoundKey(feedback, ctx->key.sched[0x0]);
         
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[1]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[2]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[3]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[4]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[5]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[6]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[7]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[8]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[9]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x1]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x2]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x3]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x4]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x5]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x6]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x7]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x8]);
+		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x9]);
 
 		if (NR >= AES_192_NR) {
-			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[10]);
-			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[11]);
+			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0xa]);
+			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0xb]);
 
 			if (NR == AES_256_NR) {
-				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[12]);
-				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[13]);
+				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0xc]);
+				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0xe]);
 			}
 		}
 
@@ -175,8 +175,10 @@ aes_status_t	aes_ctr_enc(byte_t *out, size_t o_sz, aes_counter_t *iv, const byte
 		
 		_mm_storeu_si128(&((__m128i*)out)[i], state);
 
-		iv->counter += 0x01000000;
+		*cnt += 0x01000000;
 	}
+
+	*cnt = save;
 
 	return (AES_OK);
 }

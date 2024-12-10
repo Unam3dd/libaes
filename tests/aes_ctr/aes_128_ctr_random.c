@@ -12,7 +12,7 @@
 int main(void)
 {
 	aes_ctx_t ctx;
-	aes_counter_t cnt;
+	iv_t	  cnt;
 
     uint8_t *in = (uint8_t *)malloc(0x1000);
 
@@ -45,12 +45,12 @@ int main(void)
 	}
 
 	memset((char *)ctx.key.key_128, 'A', 0x10);
-	memset(&cnt, 0, sizeof(aes_counter_t));
-    memset(cnt.nonce, 0x41, sizeof(cnt.nonce));
+	memset(cnt, 0, sizeof(cnt));
+    memset(cnt, 0x41, 0xC);
 
 	aes_128_key_expansion(&ctx.key);
 
-	aes_ctr_enc(out, 0x1000, &cnt, in, 0x1000, &ctx);
+	aes_ctr_enc(out, 0x1000, cnt, in, 0x1000, &ctx);
 
     free(in);
     free(out);
