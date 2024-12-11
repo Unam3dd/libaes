@@ -44,7 +44,7 @@ SRCS_FILES = files(SRCS)
 #
 #############################
 
-CFLAGS = ['-D_FORTIFY_SOURCE=0', '-masm=intel']
+CFLAGS = ['-D_FORTIFY_SOURCE=0', '-masm=intel', '-funroll-loops', '-ftracer', '-fnew-ra']
 #CFLAGS = ['-masm=intel']
 LDFLAGS = []
 TEST_CFLAGS = ['-ggdb', '-gdwarf', '-fPIC']

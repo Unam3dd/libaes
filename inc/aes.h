@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/12/10 21:32:49 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/11 22:55:52 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,8 @@ typedef byte_t	rc_t;
  */
 typedef byte_t			aes_block_t	__attribute__((vector_size(16), aligned(16)));
 
+typedef byte_t			aes_tag_t	__attribute__((vector_size(16), aligned(16)));
+
 /*
  * @brief AES Round Key 16 bytes interpreted as unsigned char
  */
@@ -131,10 +133,11 @@ typedef byte_t			aes_round_key_u8_t	__attribute__ ((vector_size(16), aligned(16)
 typedef long long 		aes_round_key_t	__attribute__ ((vector_size(16), aligned(16)));
 
 
-typedef struct	s_aes_ctx_t			aes_ctx_t;
-typedef struct	s_aes_buf_t			aes_buf_t;
-typedef struct	s_aes_key_t			aes_key_t;
-typedef struct	s_aes_counter_t		aes_counter_t;
+typedef struct	s_aes_ctx_t				aes_ctx_t;
+typedef struct	s_aes_buf_t				aes_buf_t;
+typedef struct	s_aes_key_t				aes_key_t;
+typedef struct	s_aes_counter_t			aes_counter_t;
+typedef struct	s_aes_gcm_counter_t		aes_gcm_counter_t;
 
 /////////////////////////////////////
 //
@@ -233,6 +236,13 @@ struct s_aes_buf_t
 		size_t	size;		/*  Size of the buffer */
 		size_t	capacity;	/*  Size of the buffer */
 	};
+};
+
+struct s_aes_gcm_counter_t
+{
+	aes_tag_t	tag;
+	uint8_t		*out;
+	size_t		size;
 };
 
 /////////////////////////////////////
@@ -381,6 +391,17 @@ aes_status_t		aes_ofb_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restr
 
 aes_status_t		aes_ctr_enc(byte_t *out, size_t o_sz, const iv_t nonce, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 aes_status_t		aes_ctr_dec(byte_t *out, size_t o_sz, const iv_t nonce, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+
+/////////////////////////////////////
+//
+//
+//			AES-GCM
+//
+//
+////////////////////////////////////
+
+aes_status_t		aes_gcm_enc(aes_gcm_counter_t *out, const iv_t nonce, const byte_t *restrict aad, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_gcm_dec(aes_gcm_counter_t *out, const iv_t nonce, const byte_t *restrict aad, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
 
 /////////////////////////////////////
 //
