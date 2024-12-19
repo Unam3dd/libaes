@@ -33,8 +33,8 @@ SRCS_RC = ['src/rc/rc.c']
 SRCS_PKCS = ['src/pkcs/pkcs.c']
 SRCS_EXPANSION = ['src/expansion/aes_128_expansion.c', 'src/expansion/aes_192_expansion.c', 'src/expansion/aes_256_expansion.c']
 SRCS_RANDOM = ['src/random/rdrnd.c', 'src/random/urandom.c']
-SRCS_AES = ['src/ecb/aes_ecb.c', 'src/cbc/aes_cbc.c', 'src/cfb/aes_cfb.c', 'src/ofb/aes_ofb.c', 'src/ctr/aes_ctr.c']
-SRCS_GF = ['src/gf/gf8_mul.c']
+SRCS_AES = ['src/ecb/aes_ecb.c', 'src/cbc/aes_cbc.c', 'src/cfb/aes_cfb.c', 'src/ofb/aes_ofb.c', 'src/ctr/aes_ctr.c', 'src/gcm/aes_gcm.c']
+SRCS_GF = ['src/gf/gf8_mul.c', 'src/gf/gf128_mul.c']
 
 SRCS = [SRCS_PKCS, SRCS_RC, SRCS_EXPANSION, SRCS_RANDOM, SRCS_AES, SRCS_GF]
 SRCS_FILES = files(SRCS)
@@ -83,7 +83,7 @@ endif
 #
 #############################
 
-TEST_SUBPROJECT = ['tests/rc', 'tests/expansion', 'tests/random', 'tests/aes_ecb', 'tests/aes_cbc', 'tests/aes_cfb', 'tests/pkcs', 'tests/aes_ofb', 'tests/aes_ctr']
+TEST_SUBPROJECT = ['tests/rc', 'tests/expansion', 'tests/random', 'tests/aes_ecb', 'tests/aes_cbc', 'tests/aes_cfb', 'tests/pkcs', 'tests/aes_ofb', 'tests/aes_ctr', 'tests/aes_gcm']
 
 #############################
 #
@@ -189,7 +189,7 @@ endforeach
 
 # Check if Intrinsics header of intel is present !
 
-INTRIN_HEADER = ['immintrin.h', 'wmmintrin.h', 'nmmintrin.h', 'emmintrin.h', 'tmmintrin.h', 'x86gprintrin.h']
+INTRIN_HEADER = ['immintrin.h', 'wmmintrin.h', 'nmmintrin.h', 'emmintrin.h', 'tmmintrin.h', 'x86gprintrin.h', 'smmintrin.h']
 
 if get_option('no-aesni') == false
   foreach header: INTRIN_HEADER
@@ -221,6 +221,8 @@ if get_option('no-aesni') == false
   CFLAGS += ['-mvaes']            # Vectorize AES-NI Instruction
   
   CFLAGS += ['-mgfni']            # Galois Field Instruction
+
+  CFLAGS += ['-mpclmul']          # Packer carry less multiplication
 endif
 
 #############################

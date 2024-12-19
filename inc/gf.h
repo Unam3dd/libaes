@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 23:31:32 by stales            #+#    #+#             */
-/*   Updated: 2024/12/16 23:47:22 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/19 13:18:53 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,19 @@
 
 #include <stdint.h>
 #include <emmintrin.h>
+
+/////////////////////////////////////
+//
+//
+//				DEFINES
+//
+//
+////////////////////////////////////
+
+
+#ifndef REDUCTION_POLY_128
+#define REDUCTION_POLY_128 0x87
+#endif
 
 // gf8_add.c
 

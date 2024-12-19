@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/12/11 23:37:31 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/19 13:44:01 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,7 @@
  */
 
 #include "aes.h"
+#include "gf.h"
 
 #include <emmintrin.h>
 #include <smmintrin.h>
@@ -133,13 +134,14 @@ aes_status_t __attribute__((alias("aes_gcm_enc"))) aes_gcm_dec(aes_gcm_counter_t
 
 aes_status_t	aes_gcm_enc(aes_gcm_counter_t *out, const iv_t nonce, const byte_t *restrict aad, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
 {
-	if (!ctx || !out || !in || !aad || (out->size < i_sz))
+	if (!ctx || !out || !in || !aad || !out->out || (out->size < i_sz))
 		return (AES_ERR);
 
 	__m128i state = _mm_setzero_si128();
 	__m128i feedback = _mm_setzero_si128();
 	__m128i first = _mm_setzero_si128();
 	__m128i hash_subkey = _mm_setzero_si128();
+	__m128i current_aad = *(__m128i*)aad;
 
 	uint32_t *cnt = (uint32_t *)(nonce + 0xC);
 	uint32_t save = *cnt;
@@ -197,11 +199,17 @@ aes_status_t	aes_gcm_enc(aes_gcm_counter_t *out, const iv_t nonce, const byte_t 
 			_mm_storeu_si128(&((__m128i*)out)[i], feedback);
 			continue ;
 		}
-        
+
+		hash_subkey = gf128_mul(current_aad, hash_subkey);
+		current_aad = _mm_xor_si128(hash_subkey, feedback);
+		hash_subkey = gf128_mul(current_aad, hash_subkey);
+
 		state = _mm_xor_si128(feedback, state);
-		_mm_storeu_si128(&((__m128i*)out)[i], state);
+		_mm_storeu_si128(&((__m128i*)out->out)[i], state);
 	}
 
+	out->tag = _mm_xor_si128(first, hash_subkey);
+	
 	*cnt = save;
 
 	return (AES_OK);

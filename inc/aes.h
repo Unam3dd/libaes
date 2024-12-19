@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/19 09:45:21 by stales            #+#    #+#             */
-/*   Updated: 2024/12/11 22:55:52 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/19 13:55:34 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ typedef byte_t	rc_t;
  */
 typedef byte_t			aes_block_t	__attribute__((vector_size(16), aligned(16)));
 
-typedef byte_t			aes_tag_t	__attribute__((vector_size(16), aligned(16)));
+typedef __m128i			aes_tag_t;
 
 /*
  * @brief AES Round Key 16 bytes interpreted as unsigned char
