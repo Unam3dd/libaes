@@ -6,19 +6,25 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 23:35:39 by stales            #+#    #+#             */
-/*   Updated: 2024/12/16 23:45:20 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/20 19:32:01 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "gf.h"
 
-uint8_t	gf8_mul(uint8_t a, uint8_t b)
+uint16_t	gf8_mul(uint8_t a, uint8_t b)
 {
-	uint8_t p = 0;
+	uint16_t p = 0;
 
 	while (a && b) {
-		if (b & 0x1) p ^= a;
-		a = (a & 0x80) ? (a << 1) ^ 0x11b : (a << 1);
+		
+		if (b & 0x1)
+			p ^= a;
+		
+		a = (a & 0x80)
+			? (a << 1) ^ 0x11b 
+			: (a << 1);
+		
 		b >>= 1;
 	}
 

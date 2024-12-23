@@ -222,7 +222,7 @@ if get_option('no-aesni') == false
   
   CFLAGS += ['-mgfni']            # Galois Field Instruction
 
-  CFLAGS += ['-mpclmul']          # Packer carry less multiplication
+  CFLAGS += ['-mpclmul', '-mvpclmulqdq']          # Packer carry less multiplication
 endif
 
 #############################

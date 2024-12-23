@@ -1,49 +1,32 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   gf128_mul.c                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/16 23:35:39 by stales            #+#    #+#             */
-/*   Updated: 2024/12/19 13:23:33 by stales           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "gf.h"
-
-#include <emmintrin.h>  // SSE2 pour __m128i
-#include <wmmintrin.h>  // Pour PCLMULQDQ (Carry-less Multiplication)
-#include <stdint.h>
+#include <immintrin.h>
 #include <smmintrin.h>
+#include <emmintrin.h>
 
-// Polynôme irréductible pour GF(2^128) : x^128 + x^7 + x^2 + x + 1
+__m128i gf128_mul(__m128i a, __m128i b)
+{
+	__m256i poly = _mm256_set_epi64x(0, 0x1, 0, 0x87);
 
-__m128i gf128_mul(__m128i a, __m128i b) {
-    
-	const __m128i reduction_poly = _mm_set_epi32(0, 0, 0, REDUCTION_POLY_128);
-    
-	// Carry-less multiplication with PCLMULQDQ
-    __m128i product_high = _mm_clmulepi64_si128(a, b, 0x11);  // High Part
-    __m128i product_low  = _mm_clmulepi64_si128(a, b, 0x00);  // Low Part
-    __m128i product_mid1 = _mm_clmulepi64_si128(a, b, 0x01);  // Mid Part
-    __m128i product_mid2 = _mm_clmulepi64_si128(a, b, 0x10);  // Mid Part
+	__m256i res = _mm256_setzero_si256();
+	__m256i aa = _mm256_load_si256((__m256i*)&a);
+	__m256i bb = _mm256_setzero_si256();
 
-    __m128i mid = _mm_xor_si128(product_mid1, product_mid2);
-    mid = _mm_xor_si128(mid, _mm_srli_si128(mid, 8));
-    __m128i result = _mm_xor_si128(product_low, _mm_slli_si128(mid, 8));
-    result = _mm_xor_si128(result, _mm_slli_si128(product_high, 8));
+	_mm256_xor_si256(res, res);
 
-    for (int i = 0; i < 8; ++i) {
-        
-		__m128i carry = _mm_and_si128(result, _mm_set_epi32(0x80000000, 0, 0, 0));
-        
-		result = _mm_slli_epi64(result, 1);
-        
-		if (!_mm_testz_si128(carry, carry))
-            result = _mm_xor_si128(result, reduction_poly);
-    }
+	__m256i tmp5 =  _mm256_clmulepi64_epi128(a, b, 0x0);
+	__m256i tmp4 = _mm256_clmulepi64_epi128(a, b, 0x10);
+	__m256i tmp3 = _mm256_clmulepi64_epi128(a, b, 0x01);
+	__m256i tmp2 = _mm256_clmulepi64_epi128(a, b, 0x11);
 
-    return result;
+	tmp5 = _mm256_xor_si256(tmp5, tmp3);
+	tmp2 = _mm256_xor_si256(tmp2, tmp4);
+
+	//res = _mm256_clmulepi64_si128(tmp5, poly, 0x10);
+
+	//tmp3 = _mm_shuffle_epi32(tmp5, 0x4e);
+
+	res = _mm256_xor_si256(res, tmp2);
+	res = _mm256_xor_si256(res, tmp3);
+
+	return (((__m128i*)&res)[0]);
 }
-

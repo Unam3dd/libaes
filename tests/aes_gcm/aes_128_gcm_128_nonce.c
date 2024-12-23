@@ -1,9 +1,7 @@
-#include "pkcs.h"
 #include "aes.h"
-
-#include <stdio.h>
 #include <unistd.h>
 
+/*
 static void	print_hex(const uint8_t *buf, size_t size)
 {
 	static const char HEX_TAB[0x10] = {
@@ -26,6 +24,7 @@ static void	print_hex(const uint8_t *buf, size_t size)
 
 	putchar('\n');
 }
+*/
 
 int main(void)
 {

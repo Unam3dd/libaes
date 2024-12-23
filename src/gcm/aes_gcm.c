@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/12/19 13:44:01 by stales           ###   ########.fr       */
+/*   Updated: 2024/12/21 11:07:29 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,7 @@ aes_status_t	aes_gcm_enc(aes_gcm_counter_t *out, const iv_t nonce, const byte_t 
 	__m128i feedback = _mm_setzero_si128();
 	__m128i first = _mm_setzero_si128();
 	__m128i hash_subkey = _mm_setzero_si128();
-	__m128i current_aad = *(__m128i*)aad;
+	//__m128i current_aad = _mm_loadu_si128(aad);
 
 	uint32_t *cnt = (uint32_t *)(nonce + 0xC);
 	uint32_t save = *cnt;
@@ -192,20 +192,14 @@ aes_status_t	aes_gcm_enc(aes_gcm_counter_t *out, const iv_t nonce, const byte_t 
 
         feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[NR]);
 		
-		*cnt += 0x01000000;
+		state = _mm_xor_si128(feedback, state);
+		
+		_mm_storeu_si128(&((__m128i*)out->out)[i], state);
 
 		if (i == 0) {
-			first = feedback;
-			_mm_storeu_si128(&((__m128i*)out)[i], feedback);
-			continue ;
 		}
-
-		hash_subkey = gf128_mul(current_aad, hash_subkey);
-		current_aad = _mm_xor_si128(hash_subkey, feedback);
-		hash_subkey = gf128_mul(current_aad, hash_subkey);
-
-		state = _mm_xor_si128(feedback, state);
-		_mm_storeu_si128(&((__m128i*)out->out)[i], state);
+		
+		*cnt += 0x01000000;
 	}
 
 	out->tag = _mm_xor_si128(first, hash_subkey);
