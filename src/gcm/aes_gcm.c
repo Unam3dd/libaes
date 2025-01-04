@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2024/12/21 11:07:29 by stales           ###   ########.fr       */
+/*   Updated: 2025/01/04 14:59:17 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,13 @@
 #include <wmmintrin.h>
 #include <immintrin.h>
 #include <xmmintrin.h>
+
+/**
+* @WARNING: the implementation of GCM is not finish please take care of this
+* and don't use it.
+*
+*/
+
 
 /////////////////////////////////////
 //
