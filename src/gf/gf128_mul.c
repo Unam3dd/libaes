@@ -24,8 +24,8 @@ __m128i gf128_mul(__m128i a, __m128i b)
 	tmp3 = _mm_clmulepi64_si128(a, b, 0x0);
 	tmp4 = _mm_clmulepi64_si128(a, b, 0x11);
 
-	tmp4 = _mm_shuffle_epi32(a, 0x4e);
-	tmp5 = _mm_shuffle_epi32(b, 0x4e);
+	tmp4 = _mm_shuffle_epi32(a, _MM_SHUFFLE(1, 0, 3, 2));
+	tmp5 = _mm_shuffle_epi32(b, _MM_SHUFFLE(1, 0, 3, 2));
 	tmp4 = _mm_xor_si128(tmp4, a);
 	tmp5 = _mm_xor_si128(tmp5, b);
 
@@ -45,7 +45,7 @@ __m128i gf128_mul(__m128i a, __m128i b)
 	tmp7 = _mm_xor_si128(tmp7, tmp8);
 	tmp7 = _mm_xor_si128(tmp7, tmp9);
 
-	tmp8 = _mm_shuffle_epi32(tmp7, 147);
+	tmp8 = _mm_shuffle_epi32(tmp7, _MM_SHUFFLE(2, 1, 0, 3));
 
 	tmp7 = _mm_and_si128(XMMASK, tmp8);
 	tmp8 = _mm_andnot_si128(XMMASK, tmp8);
