@@ -4,7 +4,7 @@
 #
 #############################
 
-AES_CFB_TEST_SRCS = ['aes_192_cfb_one', 'aes_256_cfb_one', 'aes_128_cfb_one', 'aes_128_cfb_two', 'aes_128_cfb_random']
+AES_CFB_TEST_SRCS = ['aes_192_cfb_one', 'aes_256_cfb_one', 'aes_256_cfb_two', 'aes_128_cfb_one', 'aes_128_cfb_two', 'aes_128_cfb_random']
 
 foreach AES_CFB_TEST: AES_CFB_TEST_SRCS
   AES_CFB_TEST_EXE = executable(AES_CFB_TEST + '.out',

@@ -4,7 +4,7 @@
 #
 #############################
 
-AES_128_ECB_TEST_SRCS = ['aes_192_ecb_one', 'aes_256_ecb_one', 'aes_256_ecb_two', 'aes_128_ecb_one', 'aes_ecb_one']
+AES_128_ECB_TEST_SRCS = ['aes_192_ecb_one', 'aes_256_ecb_one', 'aes_256_ecb_two', 'aes_128_ecb_one', 'aes_128_ecb_two', 'aes_ecb_one']
 
 foreach AES_128_ECB_TEST: AES_128_ECB_TEST_SRCS
   AES_128_ECB_TEST_EXE = executable(AES_128_ECB_TEST + '.out',

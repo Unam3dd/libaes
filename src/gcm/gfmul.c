@@ -4,16 +4,17 @@
 #include <tmmintrin.h>
 #include <xmmintrin.h>
 
-void	gfmul(const uint8_t a[0x10], const uint8_t b[0x10], const uint8_t r[0x10])
+void	gfmul(const uint8_t a[0x10], const uint8_t b[0x10], uint8_t r[0x10])
 {
-    const __m128i MASK = _mm_set_epi8(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+	const __m128i BSWAP_MASK = _mm_set_epi8(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
 	
-	__m128i xmm0 = _mm_loadu_si128((__m128i*)a);
-	__m128i xmm1 = _mm_loadu_si128((__m128i*)b);
-	__m128i tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp8, tmp9;
-
-	xmm0 = _mm_shuffle_epi8(xmm0, MASK);
-	xmm1 = _mm_shuffle_epi8(xmm1, MASK);
+	__m128i xmm0 = _mm_loadu_si128((const __m128i*)a);
+	__m128i xmm1 = _mm_loadu_si128((const __m128i*)b);
+	__m128i tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp8, tmp9;
+	
+	// GCM byte-swap avant multiplication
+	xmm0 = _mm_shuffle_epi8(xmm0, BSWAP_MASK);
+	xmm1 = _mm_shuffle_epi8(xmm1, BSWAP_MASK);
 
 	tmp3 = _mm_clmulepi64_si128(xmm0, xmm1, 0x00);
 	tmp4 = _mm_clmulepi64_si128(xmm0, xmm1, 0x10);
@@ -56,19 +57,21 @@ void	gfmul(const uint8_t a[0x10], const uint8_t b[0x10], const uint8_t r[0x10])
 	tmp2 = _mm_xor_si128(tmp2, tmp8);
 	tmp3 = _mm_xor_si128(tmp3, tmp2);
 	tmp6 = _mm_xor_si128(tmp6, tmp3);
-
-
-    tmp6 = _mm_shuffle_epi8(tmp6, MASK);
+	
+	// GCM byte-swap après multiplication
+	tmp6 = _mm_shuffle_epi8(tmp6, BSWAP_MASK);
 
 	_mm_storeu_si128((__m128i*)r, tmp6);
 }
 
 
+/*
+ *
 #include <stdio.h>
 #include <string.h>
 int main(int argc, char* argv[])
 {
-    /* A's high nibble is 0x01, B's high nibble is 0x02 */
+    // high nibble is 0x01, B's high nibble is 0x02
     uint8_t a[16] = {0x1f,0x1e,0x1d,0x1c,0x1b,0x1a,0x19,0x18,0x17,0x16,0x15,0x14,0x13,0x12,0x11,0x10};
     uint8_t b[16] = {0x2f,0x2e,0x2d,0x2c,0x2b,0x2a,0x29,0x28,0x27,0x26,0x25,0x24,0x23,0x22,0x21,0x20};
 	//uint8_t a[0x10] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
@@ -77,7 +80,7 @@ int main(int argc, char* argv[])
 
     gfmul(a, b, r);
 
-    /* 020BBEB352AEAE16... */
+    // 020BBEB352AEAE16...
     printf("GHASH of message: ");
     printf("%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n",
         r[0] & 0xFF, r[1] & 0xFF, r[2] & 0xFF, r[3] & 0xFF,
@@ -94,4 +97,4 @@ int main(int argc, char* argv[])
 
     return (success != 0 ? 0 : 1);
 }
-
+*/

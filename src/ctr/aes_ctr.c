@@ -146,30 +146,7 @@ aes_status_t	aes_ctr_enc(byte_t *out, size_t o_sz, const iv_t nonce, const byte_
 
 		feedback = _mm_loadu_si128((__m128i*)nonce);
 
-		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
-		feedback = AddRoundKey(feedback, ctx->key.sched[0x0]);
-        
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x1]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x2]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x3]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x4]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x5]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x6]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x7]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x8]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x9]);
-
-		if (NR >= AES_192_NR) {
-			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0xa]);
-			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0xb]);
-
-			if (NR == AES_256_NR) {
-				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0xc]);
-				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0xe]);
-			}
-		}
-
-        feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[NR]);
+		feedback = aes_block_enc(feedback, &ctx->key, NR);
 
         state = _mm_xor_si128(feedback, state);
 		

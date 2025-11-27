@@ -12,6 +12,7 @@
 
 #include "aes.h"
 #include "gf.h"
+#include <string.h>
 
 #include <emmintrin.h>
 #include <smmintrin.h>
@@ -24,7 +25,6 @@
 * and don't use it.
 *
 */
-
 
 /////////////////////////////////////
 //
@@ -57,7 +57,7 @@ static __m128i	create_hash_subkey(size_t NR, const aes_ctx_t *ctx)
 
 		if (NR == AES_256_NR) {
 			hash_subkey = _mm_aesenc_si128(hash_subkey, ctx->key.sched[0xc]);
-			hash_subkey = _mm_aesenc_si128(hash_subkey, ctx->key.sched[0xe]);
+			hash_subkey = _mm_aesenc_si128(hash_subkey, ctx->key.sched[0xd]);
 		}
 	}
 
@@ -69,27 +69,102 @@ static __m128i	create_hash_subkey(size_t NR, const aes_ctx_t *ctx)
 /////////////////////////////////////
 //
 //
+//		Compute GHASH
+//
+//
+////////////////////////////////////
+
+static __m128i	compute_ghash(const __m128i hash_subkey, const byte_t *restrict aad, size_t aad_len, const byte_t *restrict ciphertext, size_t ct_len)
+{
+	__m128i ghash = _mm_setzero_si128();
+	__m128i temp = _mm_setzero_si128();
+	uint64_t aad_bits = 0, ct_bits = 0;
+	size_t i = 0, aad_blocks = 0, aad_remainder = 0, ct_blocks = 0, ct_remainder = 0;
+	byte_t partial_aad[16] = {0}, partial_ct[16] = {0}, lengths[16] = {0};
+
+	// Traiter les blocs complets de AAD
+	if (aad && aad_len > 0) {
+
+		aad_blocks = aad_len >> 4;
+		for (i = 0; i < aad_blocks; i++) {
+			temp = _mm_loadu_si128(&((__m128i*)aad)[i]);
+			ghash = _mm_xor_si128(ghash, temp);
+			gfmul((uint8_t*)&ghash, (uint8_t*)&hash_subkey, (uint8_t*)&ghash);
+		}
+
+		// Traiter le dernier bloc partiel de AAD s'il existe
+		aad_remainder = aad_len & 0xF;
+		if (aad_remainder) {
+			for (i = 0; i < aad_remainder; i++)
+				partial_aad[i] = aad[aad_blocks * 16 + i];
+			temp = _mm_loadu_si128((__m128i*)partial_aad);
+			ghash = _mm_xor_si128(ghash, temp);
+			gfmul((uint8_t*)&ghash, (uint8_t*)&hash_subkey, (uint8_t*)&ghash);
+		}
+	}
+
+	// Traiter les blocs complets de ciphertext
+	ct_blocks = ct_len >> 4;
+	for (i = 0; i < ct_blocks; i++) {
+		temp = _mm_loadu_si128(&((__m128i*)ciphertext)[i]);
+		ghash = _mm_xor_si128(ghash, temp);
+		gfmul((uint8_t*)&ghash, (uint8_t*)&hash_subkey, (uint8_t*)&ghash);
+	}
+
+	// Traiter le dernier bloc partiel de ciphertext s'il existe
+	ct_remainder = ct_len & 0xF;
+	if (ct_remainder) {
+		for (i = 0; i < ct_remainder; i++)
+			partial_ct[i] = ciphertext[ct_blocks * 16 + i];
+		temp = _mm_loadu_si128((__m128i*)partial_ct);
+		ghash = _mm_xor_si128(ghash, temp);
+		gfmul((uint8_t*)&ghash, (uint8_t*)&hash_subkey, (uint8_t*)&ghash);
+	}
+
+	// Ajouter les longueurs (len(A) || len(C)) en bits
+	aad_bits = aad_len * 8;
+	ct_bits = ct_len * 8;
+	
+	// Big-endian encoding
+	for (i = 0; i < 8; i++) {
+		lengths[7 - i] = (aad_bits >> (i * 8)) & 0xFF;
+		lengths[15 - i] = (ct_bits >> (i * 8)) & 0xFF;
+	}
+	
+	temp = _mm_loadu_si128((__m128i*)lengths);
+	ghash = _mm_xor_si128(ghash, temp);
+	gfmul((uint8_t*)&ghash, (uint8_t*)&hash_subkey, (uint8_t*)&ghash);
+
+	return (ghash);
+}
+
+/////////////////////////////////////
+//
+//
 //	    AES Galois Counter Mode
 //
 //
 ////////////////////////////////////
 
-aes_status_t __attribute__((alias("aes_gcm_enc"))) aes_gcm_dec(aes_gcm_counter_t *out, const iv_t nonce, const byte_t *restrict aad, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+// Forward declaration de la fonction interne
+static aes_status_t aes_gcm_crypt(aes_gcm_counter_t *out, const iv_t nonce, const byte_t *restrict aad, size_t aad_len, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx, int is_decrypt);
 
 
-aes_status_t	aes_gcm_enc(aes_gcm_counter_t *out, const iv_t nonce, const byte_t *restrict aad, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
+static aes_status_t aes_gcm_crypt(aes_gcm_counter_t *out, const iv_t nonce, const byte_t *restrict aad, size_t aad_len, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx, int is_decrypt)
 {
-	if (!ctx || !out || !in || !aad || !out->out || (out->size < i_sz))
+	if (!ctx || !out || !in || !out->out || (out->size < i_sz))
 		return (AES_ERR);
 
 	__m128i state = _mm_setzero_si128();
 	__m128i feedback = _mm_setzero_si128();
-	__m128i first = _mm_setzero_si128();
+	__m128i j0_encrypted = _mm_setzero_si128();
 	__m128i hash_subkey = _mm_setzero_si128();
-	//__m128i current_aad = _mm_loadu_si128(aad);
+	__m128i ghash = _mm_setzero_si128();
 
-	uint32_t *cnt = (uint32_t *)(nonce + 0xC);
-	uint32_t save = *cnt;
+	// Copie locale du nonce pour pouvoir incrémenter le compteur
+	byte_t nonce_copy[16];
+	memcpy(nonce_copy, nonce, 16);
+	uint32_t *cnt = (uint32_t *)(nonce_copy + 0xC);
 
 	size_t NR = (ctx->key_size == AES_KEY_128
 		? AES_128_NR 
@@ -99,7 +174,13 @@ aes_status_t	aes_gcm_enc(aes_gcm_counter_t *out, const iv_t nonce, const byte_t 
 
 	hash_subkey = create_hash_subkey(NR, ctx);
 
-	// How Many iterations of 16 bytes Blocks which represent the number of state ?
+	// Calculer E(K, J0) pour le tag
+	feedback = _mm_loadu_si128((__m128i*)nonce_copy);
+	j0_encrypted = aes_block_enc(feedback, &ctx->key, NR);
+
+	*cnt += 0x01000000;
+
+	// Chiffrer/Déchiffrer les données avec J1, J2, J3, ...
 	size_t blocks = (i_sz & 0xF ?  -~(i_sz >> 0x4) : (i_sz >> 0x4));
 
 	for (size_t i = 0; i < blocks; i++) {
@@ -107,49 +188,40 @@ aes_status_t	aes_gcm_enc(aes_gcm_counter_t *out, const iv_t nonce, const byte_t 
 		// Prefetching
 		_mm_prefetch((__m128i*)(in + 0x20), _MM_HINT_T0);
 
-		// Load State
 		state = _mm_loadu_si128( &((__m128i*)in)[i]);
 
-		feedback = _mm_loadu_si128((__m128i*)nonce);
+		// Load current counter (J1, J2, J3, ...)
+		feedback = _mm_loadu_si128((__m128i*)nonce_copy);
 
-		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
-		feedback = AddRoundKey(feedback, ctx->key.sched[0x0]);
-        
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x1]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x2]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x3]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x4]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x5]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x6]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x7]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x8]);
-		feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0x9]);
+		feedback = aes_block_enc(feedback, &ctx->key, NR);
 
-		if (NR >= AES_192_NR) {
-			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0xa]);
-			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0xb]);
-
-			if (NR == AES_256_NR) {
-				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0xc]);
-				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[0xe]);
-			}
-		}
-
-        feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[NR]);
-		
 		state = _mm_xor_si128(feedback, state);
-		
-		_mm_storeu_si128(&((__m128i*)out->out)[i], state);
 
-		if (!i) first = feedback;
+		_mm_storeu_si128(&((__m128i*)out->out)[i], state);
 		
+		// Incrémenter pour le prochain bloc
 		*cnt += 0x01000000;
 	}
 
-	out->tag = _mm_xor_si128(first, hash_subkey);
+	// Calculer GHASH sur le ciphertext (toujours)
+	// Pour encryption: ciphertext = out->out (résultat du CTR)
+	// Pour decryption: ciphertext = in (entrée)
+	const byte_t *ciphertext = is_decrypt ? in : out->out;
+	ghash = compute_ghash(hash_subkey, aad, aad_len, ciphertext, i_sz);
 	
-	*cnt = save;
+	// Tag final = GHASH XOR E(K, J0)
+	out->tag = _mm_xor_si128(ghash, j0_encrypted);
 
 	return (AES_OK);
+}
+
+aes_status_t	aes_gcm_enc(aes_gcm_counter_t *out, const iv_t nonce, const byte_t *restrict aad, size_t aad_len, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
+{
+	return aes_gcm_crypt(out, nonce, aad, aad_len, in, i_sz, ctx, 0);
+}
+
+aes_status_t	aes_gcm_dec(aes_gcm_counter_t *out, const iv_t nonce, const byte_t *restrict aad, size_t aad_len, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
+{
+	return aes_gcm_crypt(out, nonce, aad, aad_len, in, i_sz, ctx, 1);
 }
 

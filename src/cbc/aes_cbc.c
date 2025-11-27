@@ -116,29 +116,7 @@ aes_status_t	aes_cbc_enc(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 
 		feedback = _mm_xor_si128(state, feedback);
 
-		// Xor State with first round Key (This XOR is equal to first AddRounKey Transformation)
-		feedback = AddRoundKey(feedback, ctx->key.sched[0]);
-        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[1]);
-        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[2]);
-        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[3]);
-        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[4]);
-        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[5]);
-        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[6]);
-        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[7]);
-        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[8]);
-        feedback = _mm_aesenc_si128(feedback, ctx->key.sched[9]);
-
-		if (NR >= AES_192_NR) {
-			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[10]);
-			feedback = _mm_aesenc_si128(feedback, ctx->key.sched[11]);
-
-			if (NR == AES_256_NR) {
-				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[12]);
-				feedback = _mm_aesenc_si128(feedback, ctx->key.sched[13]);
-			}
-		}
-		
-        feedback = _mm_aesenclast_si128(feedback, ctx->key.sched[NR]);
+		feedback = aes_block_enc(feedback, &ctx->key, NR);
 
 		_mm_storeu_si128(&((__m128i*)out)[i], feedback);
 	}
@@ -173,8 +151,9 @@ aes_status_t	aes_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 	for (i = 0; i < blocks; i++) {
 		
 		last_in = _mm_loadu_si128( &((__m128i*)in)[i]);
+		state = last_in;
 
-        state = AddRoundKey(last_in, ctx->key.sched[NR]);
+        /*state = AddRoundKey(last_in, ctx->key.sched[NR]);
 
 		state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 1]));
 		state = _mm_aesdec_si128(state, _mm_aesimc_si128(ctx->key.sched[NR - 2]));
@@ -196,7 +175,10 @@ aes_status_t	aes_cbc_dec(byte_t *out, size_t o_sz, iv_t iv, const byte_t *restri
 			}
 		}
         
-        state = _mm_aesdeclast_si128(state, ctx->key.sched[0]);
+        state = _mm_aesdeclast_si128(state, ctx->key.sched[0]);*/
+
+		state = aes_block_dec(state, &ctx->key, NR);
+
 		state = _mm_xor_si128(state, feedback);
 
 		_mm_storeu_si128(&((__m128i*)out)[i], state);

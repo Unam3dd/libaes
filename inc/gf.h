@@ -38,4 +38,6 @@ uint16_t		gf8_mul(uint8_t a, uint8_t b);
 
 __m128i			gf128_mul(__m128i a, __m128i b);
 
+void			gfmul(const uint8_t a[0x10], const uint8_t b[0x10], uint8_t r[0x10]);
+
 #endif

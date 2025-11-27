@@ -400,8 +400,20 @@ aes_status_t		aes_ctr_dec(byte_t *out, size_t o_sz, const iv_t nonce, const byte
 //
 ////////////////////////////////////
 
-aes_status_t		aes_gcm_enc(aes_gcm_counter_t *out, const iv_t nonce, const byte_t *restrict aad, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
-aes_status_t		aes_gcm_dec(aes_gcm_counter_t *out, const iv_t nonce, const byte_t *restrict aad, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_gcm_enc(aes_gcm_counter_t *out, const iv_t nonce, const byte_t *restrict aad, size_t aad_len, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+aes_status_t		aes_gcm_dec(aes_gcm_counter_t *out, const iv_t nonce, const byte_t *restrict aad, size_t aad_len, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx);
+
+
+/////////////////////////////////////
+//
+//
+//			UTILS
+//
+//
+////////////////////////////////////
+
+__m128i				aes_block_enc(__m128i data, const aes_key_t *k, const aes_key_size_t nr);
+__m128i				aes_block_dec(__m128i data, const aes_key_t *k, const aes_key_size_t nr);
 
 /////////////////////////////////////
 //
