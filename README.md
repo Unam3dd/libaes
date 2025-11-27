@@ -2,7 +2,7 @@
 
 <div align="center">
 
-**A Simple, Lightweight and High-Performance AES Cryptographic Library**
+**A Simple, Lightweight AES Cryptographic Library**
 
 [![Tests Status](https://img.shields.io/badge/tests-58%20passing-success)](./tests)
 [![AES-NI](https://img.shields.io/badge/AES--NI-enabled-blue)](https://www.intel.com/content/www/us/en/developer/articles/technical/advanced-encryption-standard-instructions-aes-ni.html)
