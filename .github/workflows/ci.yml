@@ -64,6 +64,5 @@ jobs:
 
       - name: Run tests in Debug
         run: |
-          meson test --print-errorlogs -C build
+          meson test --verbose --print-errorlogs -C build
           rm -rf build
-
