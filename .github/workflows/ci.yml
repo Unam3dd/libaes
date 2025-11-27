@@ -66,4 +66,15 @@ jobs:
         run: |
           meson test --print-errorlogs -C build
           rm -rf build
+  
+  tests:
+    runs-on: ubuntu-latest
 
+    container:
+      image: 'debian:stable'
+    
+    steps:
+      - name: Running tests...
+        run: |
+          meson test --verbose --print-errorlogs -C build
+          rm -rf build
