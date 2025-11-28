@@ -8,7 +8,6 @@
 [![AES-NI](https://img.shields.io/badge/AES--NI-enabled-blue)](https://www.intel.com/content/www/us/en/developer/articles/technical/advanced-encryption-standard-instructions-aes-ni.html)
 [![C Standard](https://img.shields.io/badge/C-C18-blue)](https://en.cppreference.com/w/c/18)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
-[![Documentation]](./DOC.md)
 
 </div>
 
@@ -29,6 +28,7 @@
 - [Références](#-références)
 - [Contribution](#-contribution)
 - [Licence](#-licence)
+- [Documentation](./DOC.md)
 
 ---
 
