@@ -28,6 +28,7 @@
 - [Références](#-références)
 - [Contribution](#-contribution)
 - [Licence](#-licence)
+- [Documentation](./DOC.md)
 
 ---
 

@@ -42,3 +42,4 @@ Notre implémentation produit les mêmes résultats qu'OpenSSL pour les vecteurs
 - Ciphertext : ✅ Identique
 - Tag d'authentification : ✅ Identique (`da80ce830cfda02da2a218a1744f4c76`)
 
+
