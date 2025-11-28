@@ -6,7 +6,7 @@
 /*   By: stales <stales@student.42angouleme.fr>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 12:46:51 by stales            #+#    #+#             */
-/*   Updated: 2025/11/28 17:54:57 by stales           ###   ########.fr       */
+/*   Updated: 2025/11/28 19:14:37 by stales           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,7 +193,7 @@ static aes_status_t aes_gcm_crypt(aes_gcm_counter_t *out, const iv_t nonce, cons
 
 		_mm_storeu_si128(&((__m128i*)out->out)[i], state);
 		
-		// Incrémenter pour le prochain bloc (little endian)
+		// Incrémenter pour le prochain bloc (big endian)
 		*cnt += 0x01000000;
 	}
 
