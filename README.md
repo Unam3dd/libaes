@@ -16,6 +16,7 @@
 ## 📋 Table des Matières
 
 - [À Propos](#-à-propos)
+- [Documentation](DOC.MD)
 - [Fonctionnalités](#-fonctionnalités)
 - [Architecture](#-architecture)
 - [Installation](#-installation)
