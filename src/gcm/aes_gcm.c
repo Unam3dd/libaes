@@ -155,7 +155,6 @@ static aes_status_t aes_gcm_crypt(aes_gcm_counter_t *out, const iv_t nonce, cons
 	uint32_t *cnt = NULL;
 	size_t NR = 0, blocks = 0, i = 0;
 
-	// Copie locale du nonce pour pouvoir incrémenter le compteur
 	memcpy(nonce_local, nonce, 16);
 
 	cnt = (uint32_t *)(nonce_local + 0xC);
@@ -168,18 +167,15 @@ static aes_status_t aes_gcm_crypt(aes_gcm_counter_t *out, const iv_t nonce, cons
 
 	hash_subkey = create_hash_subkey(NR, ctx);
 
-	// Calculer E(K, J0) pour le tag
 	feedback = _mm_loadu_si128((__m128i*)nonce_local);
 	j0_encrypted = aes_block_enc(feedback, &ctx->key, NR);
 	
 	*cnt += 0x01000000;
 
-	// Chiffrer/Déchiffrer les données avec J1, J2, J3, ...
 	blocks = (i_sz & 0xF ?  -~(i_sz >> 0x4) : (i_sz >> 0x4));
 
 	for (i = 0; i < blocks; i++) {
 
-		// Prefetching
 		_mm_prefetch((__m128i*)(in + 0x20), _MM_HINT_T0);
 
 		state = _mm_loadu_si128( &((__m128i*)in)[i]);
@@ -193,13 +189,10 @@ static aes_status_t aes_gcm_crypt(aes_gcm_counter_t *out, const iv_t nonce, cons
 
 		_mm_storeu_si128(&((__m128i*)out->out)[i], state);
 		
-		// Incrémenter pour le prochain bloc (big endian)
+		// Incrément counter (big endian)
 		*cnt += 0x01000000;
 	}
 
-	// Calculer GHASH sur le ciphertext (toujours)
-	// Pour encryption: ciphertext = out->out (résultat du CTR)
-	// Pour decryption: ciphertext = in (entrée)
 	ghash = compute_ghash(hash_subkey, aad, aad_len, is_decrypt ? in : out->out, i_sz);
 	
 	// Tag final = GHASH XOR E(K, J0)
@@ -216,5 +209,4 @@ aes_status_t	aes_gcm_enc(aes_gcm_counter_t *out, const iv_t nonce, const byte_t 
 aes_status_t	aes_gcm_dec(aes_gcm_counter_t *out, const iv_t nonce, const byte_t *restrict aad, size_t aad_len, const byte_t *restrict in, size_t i_sz, const aes_ctx_t *ctx)
 {
 	return (aes_gcm_crypt(out, nonce, aad, aad_len, in, i_sz, ctx, TRUE));
-}
-
+} 
